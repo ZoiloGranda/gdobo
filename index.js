@@ -3,10 +3,9 @@ const {google} = require('googleapis');
 const Promise = require('bluebird');
 const readline = require('readline');
 const chalk = require('chalk');
-
 require('dotenv').config();
+
 const folder = process.env.FOLDER_TO_UPLOAD;
-console.log(folder);
 var auth;
 
 function startProcess(authData) {
@@ -16,26 +15,33 @@ function startProcess(authData) {
 
 function listAllFiles() {
  fs.readdir(folder, (err, filenames) => {
-  console.log(chalk.gray(filenames));
+  console.log(filenames);
   sendFilesInArray(filenames)
  });
 }
 
 function sendFilesInArray(filenames) {
- console.log(filenames);
- Promise.reduce(filenames, function(total, currentFile) {
-  console.log({currentFile});
-  return upload(currentFile).then(function(data) {
+ Promise.map(filenames, function(currentFile) {
+  return upload(currentFile)
+  .then(function(data) {
    console.log(chalk.green(`${data.status} ${data.statusText}`));
-   return;
+  })
+  .catch(function(err) {
+   console.log(chalk.red('ERROR'));
+   console.log(err);
   });
- }).then(function(total) {
-  console.log(chalk.bgGreen('SUCCESS ALL FILES'));
+ },{concurrency: 1})
+ .then(function(data) {
+  console.log(data);
+  console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
+  const filesNotSent = data.filter((value) => isString(value))
+  console.log({filesNotSent});
  }).catch(function(err) {
   console.log('ERROR');
   console.log(err);
  });
 }
+
 function upload(filename) {
  return new Promise(function(resolve, reject) {
   console.log(chalk.inverse(`UPLOADING: ${filename}`));
@@ -61,8 +67,8 @@ function upload(filename) {
    },
   }, function (err, file) {
    if (err) {
-    console.log(`ERROR WITH ${filename}`);
-    console.error(err);
+    console.log(chalk.red(`ERROR WITH ${filename}`));
+    console.log(err);
     reject(err)
    } else {
     console.log(chalk.green(`\nFile saved: ${filename}`));
