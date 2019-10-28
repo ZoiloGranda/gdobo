@@ -1,0 +1,26 @@
+{
+ "name": "gdobo",
+ "version": "1.0.0",
+ "description": "A simple Node.js command-line application that makes requests to the Google Drive API.",
+ "private": true,
+ "dependencies": {
+  "bluebird": "^3.7.1",
+  "chalk": "^2.4.2",
+  "dotenv": "^8.2.0",
+  "express": "^4.16.4",
+  "googleapis": "^39.0.0",
+  "nconf": "^0.10.0",
+  "nodemon": "^1.19.4",
+  "open": "^7.0.0",
+  "server-destroy": "^1.0.1",
+  "uuid": "^3.3.2"
+ },
+ "devDependencies": {},
+ "engines": {
+  "node": ">=6.4.0"
+ },
+ "scripts": {
+  "start": "nodemon google-api.js"
+ },
+ "license": "Apache-2.0"
+}

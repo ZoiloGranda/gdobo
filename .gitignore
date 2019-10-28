@@ -1,0 +1,6 @@
+.env
+node_modules
+credentials.json
+oauth2.keys.json
+token.json
+files
