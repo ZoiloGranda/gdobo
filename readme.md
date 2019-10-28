@@ -1,6 +1,9 @@
 ### 1
-Para activar la API de Google Drive ir a 
+Enable the Drive API
 https://developers.google.com/drive/api/v3/quickstart/nodejs
+
+In resulting dialog click DOWNLOAD CLIENT CONFIGURATION and save the file `credentials.json` to your working directory.
+
 ### 2
 The first time you run the sample, it will prompt you to authorize access:
 
