@@ -1,3 +1,6 @@
+## Warning
+Copy the directory you want to upload and work on that folder, this script removes the files after uploading them to avoid duplicated uploads.
+
 ### 1
 Enable the Drive API
 https://developers.google.com/drive/api/v3/quickstart/nodejs
