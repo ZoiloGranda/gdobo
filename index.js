@@ -23,8 +23,9 @@ function listAllFiles() {
 function sendFilesInArray(filenames) {
  Promise.map(filenames, function(currentFile) {
   return upload(currentFile)
-  .then(function(data) {
-   console.log(chalk.green(`${data.status} ${data.statusText}`));
+  .then(async function(data) {
+   console.log(chalk.green(`\nFile saved: ${currentFile} ${data.status} ${data.statusText}`));
+   await deleteFile(currentFile);
   })
   .catch(function(err) {
    console.log(chalk.red('ERROR'));
@@ -32,8 +33,8 @@ function sendFilesInArray(filenames) {
   });
  },{concurrency: 1})
  .then(function(data) {
-  console.log(data);
   console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
+  console.log(data);
   const filesNotSent = data.filter((value) => isString(value))
   console.log({filesNotSent});
  }).catch(function(err) {
@@ -67,15 +68,28 @@ function upload(filename) {
    },
   }, function (err, file) {
    if (err) {
-    console.log(chalk.red(`ERROR WITH ${filename}`));
+    console.log(chalk.red(`ERROR WITH: ${filename}`));
     console.log(err);
     reject(err)
    } else {
-    console.log(chalk.green(`\nFile saved: ${filename}`));
     resolve(file)
    }
   })
  })
+}
+
+function deleteFile(filename) {
+ return new Promise(function(resolve, reject) {
+  fs.unlink(folder+filename, function (err) {
+   if (err) {
+    console.log(chalk.red(`Could not delete: ${filename}`));
+    reject(err)
+   } else {
+    console.log(chalk.cyan(`Successfully deleted: ${filename}`));
+    resolve();
+   }
+  })
+ });
 }
 
 // /**
