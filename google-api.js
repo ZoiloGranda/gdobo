@@ -18,7 +18,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
-const {startProcess} = require('./index')
+const {checkArgs} = require('./index')
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/drive'];
@@ -31,7 +31,7 @@ const TOKEN_PATH = 'token.json';
 fs.readFile('credentials.json', (err, content) => {
  if (err) return console.log('Error loading client secret file:', err);
  // Authorize a client with credentials, then call the Google Drive API.
- authorize(JSON.parse(content),startProcess);
+ authorize(JSON.parse(content),checkArgs);
 });
 
 /**
