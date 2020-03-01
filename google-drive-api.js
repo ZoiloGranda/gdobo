@@ -1,4 +1,6 @@
 const {google} = require('googleapis');
+const chalk = require('chalk');
+const fs = require('fs');
 
 /**
  * Lists the names and IDs of up to 10 files.
@@ -45,6 +47,51 @@ var listFiles = function(params) {
 	});
 }
 
+function upload(params) {
+	return new Promise(function(resolve, reject) {
+  let {
+   auth,
+   filename,
+   folder
+  } = params;
+		console.log(chalk.inverse(`UPLOADING: ${filename}`));
+		const fileSize = fs.statSync(folder + filename).size;
+		const drive = google.drive({
+			version: 'v3',
+			auth
+		});
+		var fileMetadata = {
+			'name': filename
+		};
+		var media = {
+			mimeType: 'audio/mpeg',
+			body: fs.createReadStream(folder + filename)
+		};
+		drive.files.create({
+			resource: fileMetadata,
+			media: media,
+			fields: 'id'
+		}, {
+			onUploadProgress: evt => {
+				const progress = (evt.bytesRead / fileSize) * 100;
+				readline.clearLine(process.stdout, 0)
+				readline.cursorTo(process.stdout, 0, null)
+				process.stdout.write(chalk.inverse(`${Math.round(progress)}% complete`));
+			},
+		}, function(err, file) {
+			if (err) {
+				console.log(chalk.red(`ERROR WITH: ${filename}`));
+				console.log(err);
+				reject(err)
+			}
+			else {
+				resolve(file)
+			}
+		})
+	})
+}
+
 module.exports = {
-	listFiles
+	listFiles,
+ upload
 }
