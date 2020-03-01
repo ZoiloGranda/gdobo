@@ -1,6 +1,7 @@
 const {google} = require('googleapis');
 const chalk = require('chalk');
 const fs = require('fs');
+const readline = require('readline');
 
 /**
  * Lists the names and IDs of up to 10 files.
@@ -10,7 +11,8 @@ var listFiles = function(params) {
  return new Promise(function(resolve, reject) {
 	var {
 		auth,
-		nextPageTkn
+		nextPageTkn,
+  folderId
 	} = params;
 		const drive = google.drive({
 			version: 'v3',
@@ -18,11 +20,11 @@ var listFiles = function(params) {
 		});
 		console.log('voy');
 		let listParams = {
-			pageSize: 30,
+			pageSize: 500,
 			fields: 'nextPageToken, files(id, name)',
 			pageToken: nextPageTkn,
 			//q: "mimeType='application/vnd.google-apps.folder'"
-			q: "parents='1qT4mEbnKQZIuKCGLR5Evr_fNwVcTnn9z'"
+			q: `parents='${folderId}'`
 		};
 		listParams.pageToken = nextPageTkn
 		drive.files.list(listParams, (err, res) => {
@@ -58,7 +60,7 @@ function upload(params) {
 		const fileSize = fs.statSync(folder + filename).size;
 		const drive = google.drive({
 			version: 'v3',
-			auth
+			auth: auth
 		});
 		var fileMetadata = {
 			'name': filename

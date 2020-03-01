@@ -7,23 +7,22 @@ const fs = require('fs');
 const Promise = require('bluebird');
 const chalk = require('chalk');
 
-var getAllGDriveFiles = function(authData) {
+var getAllGDriveFiles = function(params) {
+	let {auth, folderId} = params
 	return new Promise(async function(resolve, reject) {
 		var data = {};
 		var files = [];
-		var counter = 1
 		do {
 			data = await listFiles({
-				auth: authData,
-				nextPageTkn: data.nextPageToken
+				auth: auth,
+				nextPageTkn: data.nextPageToken,
+				folderId: folderId
 			})
 			data.files.map((file) => {
 				files.push(file.name)
 			});
 			console.log(data.nextPageToken);
-			counter++;
-			// } while (data.nextPageToken != null);
-		} while (counter < 3);
+			} while (data.nextPageToken != null);
 		console.log('done');
 		console.log(files);
 		resolve(files)
@@ -34,6 +33,10 @@ var getAllLocalFiles = function (folder) {
 	return new Promise(function(resolve, reject) {
 		fs.readdir(folder, (err, filenames) => {
 			if (err) reject(err)
+			var numbers = [1, 5, 10, 15];
+			var onlyFiles= numbers.map(function(x) {
+				return x * 2;
+			});
 			console.log(filenames);
 			resolve(filenames)
 		});
@@ -46,19 +49,8 @@ function compareFiles(params) {
 		allLocalFiles,
 		allGDriveFiles
 	} = params
-	var differentFiles = _.difference(allLocalFiles, allGDriveFiles);
-	console.log(differentFiles);
-	var areInLocal = []
-	var areInGDrive = []
-	differentFiles.forEach(function(element) {
-		let foundInLocal = _.indexOf(allLocalFiles, element)
-		let foundInDrive = _.indexOf(allGDriveFiles, element)
-		if (foundInLocal != -1) {
-			areInLocal.push(element)
-		} else {
-			areInGDrive.push(element)
-		}
-	})
+	var areInLocal = _.difference(allLocalFiles, allGDriveFiles);
+	var areInGDrive = _.difference(allGDriveFiles, allLocalFiles);
 	console.log({
 		areInLocal
 	});
@@ -94,7 +86,7 @@ function sendFilesInArray(params) {
 		})
 		.then(function(data) {
 			console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-			console.log(data);
+			console.log({data});
 			// const filesNotSent = data.filter((value) => isString(value))
    const filesNotSent = data;
 			console.log({

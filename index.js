@@ -19,44 +19,92 @@ const _ = require('lodash');
 
 require('dotenv').config();
 
-const folder = process.env.FOLDER_TO_UPLOAD;
+let folder = process.env.FOLDER_TO_UPLOAD;
+let folderId = process.env.FOLDER_IN_DRIVE_ID;
 var allFilesInDrive = [];
 
-function checkArgs(authData) {
-	var myArgs = process.argv.slice(2);
-	console.log('myArgs: ', myArgs);
-	switch (myArgs[0]) {
-		case 'upload':
-			uploadHandler(authData)
-			break;
-		case 'compare':
-			compareHandler(authData)
-			break;
-		case 'sync':
-			syncHandler(authData)
-			break;
-		default:
+async function startProcess(auth) {
+	await checkEnv();
+	checkArgs(auth)
+}
 
+function checkEnv() {
+	return new Promise(function(resolve, reject) {
+		let path = './.env'
+		try {
+			if (fs.existsSync(path)) {
+				console.log(chalk.cyan('.env file found'));
+			} else {
+				console.log(chalk.red('Error: .env file NOT found'));
+				reject()
+			}
+		} catch (err) {
+			console.log(err);
+			reject()
+		}
+		if (folder) {
+			let str = folder;
+			let res = str.charAt(str.length - 1);
+			if (res != '/') {
+				folder = folder + '/'
+			}
+			console.log(chalk.cyan(`Folder to Upload: ${folder}`));
+			resolve()
+		} else {
+			console.log(chalk.red('Error: FOLDER_TO_UPLOAD parameter NOT found in .env file'));
+			reject()
+		}
+	});
+}
+
+function checkArgs(auth) {
+	var myArgs = process.argv.slice(2);
+	if (myArgs[0]) {
+		console.log(chalk.cyan(`Operation: ${myArgs[0]}`));
+		switch (myArgs[0]) {
+			case 'upload':
+				uploadHandler(auth)
+				break;
+			case 'compare':
+				compareHandler(auth)
+				break;
+			case 'sync':
+				syncHandler(auth)
+				break;
+			default:
+				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, posible values are <upload>, <compare>, <sync>`));
+		}
+	} else {
+		console.log(chalk.red(`No arguments provided, posible values are <upload>, <compare>, <sync>`));
 	}
 }
 
-function uploadHandler(authData) {
+function uploadHandler(auth) {
 	getAllLocalFiles(folder)
 }
 
-async function syncHandler(authData) {
-	let allGDriveFiles = await getAllGDriveFiles(authData)
+async function syncHandler(auth) {
+	let allGDriveFiles = await getAllGDriveFiles({auth:auth, folderId:folderId})
 	let allLocalFiles = await getAllLocalFiles(folder);
-	let differentFiles = await compareFiles({allLocalFiles:allLocalFiles,allGDriveFiles:allGDriveFiles})
-	console.log({differentFiles});
+	let differentFiles = await compareFiles({
+		allLocalFiles: allLocalFiles,
+		allGDriveFiles: allGDriveFiles
+	})
+	console.log({
+		differentFiles
+	});
 	let filesToUpload = differentFiles.areInLocal;
-	sendFilesInArray({auth:authData,filenames:filesToUpload, folder:folder})
-	
+	sendFilesInArray({
+		auth: auth,
+		filenames: filesToUpload,
+		folder: folder
+	})
+
 }
 
-function compareHandler(authData) {
+function compareHandler(auth) {
 	return new Promise(async function(resolve, reject) {
-		let allGDriveFiles = await getAllGDriveFiles(authData)
+		let allGDriveFiles = await getAllGDriveFiles({auth:auth, folderId:folderId});
 		var allLocalFiles = await getAllLocalFiles(folder);
 		let allFilesList = compareFiles({
 			allGDriveFiles: allGDriveFiles,
@@ -80,8 +128,6 @@ function deleteFile(filename) {
 	});
 }
 
-
-
 module.exports = {
-	checkArgs,
+	startProcess,
 };
