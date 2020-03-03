@@ -7,7 +7,8 @@ const readline = require('readline');
 const chalk = require('chalk');
 const {
 	listFiles,
-	upload
+	upload,
+	getGDriveFolders
 } = require('./google-drive-api');
 const {
 	getAllGDriveFiles,
@@ -19,39 +20,48 @@ const _ = require('lodash');
 
 require('dotenv').config();
 
-let folder = process.env.FOLDER_TO_UPLOAD;
-let folderId = process.env.FOLDER_IN_DRIVE_ID;
+let localFolder = process.env.FOLDER_TO_UPLOAD;
+let gDriveFolder = process.env.FOLDER_IN_DRIVE_ID;
 var allFilesInDrive = [];
 
 async function startProcess(auth) {
-	await checkEnv();
-	checkArgs(auth)
+	try {
+		await checkEnv();
+	} catch (e) {
+		if (e.code === 'ENOENT' || 'ENOTDIR') {
+			console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid localFolder'))
+		}
+		console.log(e);
+		process.exit()
+	} finally {
+		checkArgs(auth)
+	}
 }
 
 function checkEnv() {
 	return new Promise(function(resolve, reject) {
-		let path = './.env'
-		try {
-			if (fs.existsSync(path)) {
-				console.log(chalk.cyan('.env file found'));
-			} else {
-				console.log(chalk.red('Error: .env file NOT found'));
-				reject()
-			}
-		} catch (err) {
-			console.log(err);
+		let path = './.env';
+		if (fs.existsSync(path)) {
+			console.log(chalk.cyan('.env file found'));
+		} else {
+			console.log(chalk.red('Error: .env file NOT found'));
 			reject()
 		}
-		if (folder) {
-			let str = folder;
+		if (localFolder) {
+			let str = localFolder;
 			let res = str.charAt(str.length - 1);
 			if (res != '/') {
-				folder = folder + '/'
+				localFolder = localFolder + '/'
 			}
-			console.log(chalk.cyan(`Folder to Upload: ${folder}`));
-			resolve()
+			console.log(chalk.cyan(`localFolder to Upload: ${localFolder}`));
 		} else {
 			console.log(chalk.red('Error: FOLDER_TO_UPLOAD parameter NOT found in .env file'));
+			reject()
+		}
+		if (fs.lstatSync(localFolder).isDirectory()) {
+			resolve();
+		} else {
+			console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid localFolder'))
 			reject()
 		}
 	});
@@ -71,21 +81,33 @@ function checkArgs(auth) {
 			case 'sync':
 				syncHandler(auth)
 				break;
+			case 'folders':
+				foldersHandler(auth)
+				break;
+			case 'download':
+				downloadHandler(auth)
+				break;
+			case 'help':
+				helpHandler()
+				break;
 			default:
-				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, posible values are <upload>, <compare>, <sync>`));
+				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, posible values are <upload>, <compare>, <sync>, <folders>, <help>`));
 		}
 	} else {
-		console.log(chalk.red(`No arguments provided, posible values are <upload>, <compare>, <sync>`));
+		console.log(chalk.red(`No arguments provided, posible values are <upload>, <compare>, <sync>, <folders>, <help>`));
 	}
 }
 
 function uploadHandler(auth) {
-	getAllLocalFiles(folder)
+	getAllLocalFiles(localFolder)
 }
 
 async function syncHandler(auth) {
-	let allGDriveFiles = await getAllGDriveFiles({auth:auth, folderId:folderId})
-	let allLocalFiles = await getAllLocalFiles(folder);
+	let allGDriveFiles = await getAllGDriveFiles({
+		auth: auth,
+		gDriveFolder: gDriveFolder
+	})
+	let allLocalFiles = await getAllLocalFiles(localFolder);
 	let differentFiles = await compareFiles({
 		allLocalFiles: allLocalFiles,
 		allGDriveFiles: allGDriveFiles
@@ -94,18 +116,26 @@ async function syncHandler(auth) {
 		differentFiles
 	});
 	let filesToUpload = differentFiles.areInLocal;
-	sendFilesInArray({
-		auth: auth,
-		filenames: filesToUpload,
-		folder: folder
-	})
+	if (filesToUpload[0]) {
+		sendFilesInArray({
+			auth: auth,
+			filenames: filesToUpload,
+			localFolder: localFolder,
+			gDriveFolder: gDriveFolder
+		})
+	} else {
+		console.log(chalk.yellow(`Nothing to Upload`));
+	}
 
 }
 
 function compareHandler(auth) {
 	return new Promise(async function(resolve, reject) {
-		let allGDriveFiles = await getAllGDriveFiles({auth:auth, folderId:folderId});
-		var allLocalFiles = await getAllLocalFiles(folder);
+		let allGDriveFiles = await getAllGDriveFiles({
+			auth: auth,
+			gDriveFolder: gDriveFolder
+		});
+		var allLocalFiles = await getAllLocalFiles(localFolder);
 		let allFilesList = compareFiles({
 			allGDriveFiles: allGDriveFiles,
 			allLocalFiles: allLocalFiles
@@ -114,9 +144,29 @@ function compareHandler(auth) {
 	});
 }
 
+function foldersHandler(auth) {
+	return new Promise(async function(resolve, reject) {
+		let allGDriveFolders = await getGDriveFolders({
+			auth: auth
+		});
+		console.log(allGDriveFolders);
+		resolve(allGDriveFolders)
+	});
+}
+
+function helpHandler() {
+	console.log(chalk.magenta (`
+upload: Uploads ALL files from local folder to the specified Google Drive folder
+compare: Compares files between a local folder and a Google Drive folder
+sync: Uploads the files from a local folder that are not on the specified Google Drive folder
+folders: Gets all the folders names and id's from Google Drive
+help: Shows this message
+`));
+}
+
 function deleteFile(filename) {
 	return new Promise(function(resolve, reject) {
-		fs.unlink(folder + filename, function(err) {
+		fs.unlink(localFolder + filename, function(err) {
 			if (err) {
 				console.log(chalk.red(`Could not delete: ${filename}`));
 				reject(err)

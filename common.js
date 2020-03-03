@@ -8,7 +8,10 @@ const Promise = require('bluebird');
 const chalk = require('chalk');
 
 var getAllGDriveFiles = function(params) {
-	let {auth, folderId} = params
+	let {
+		auth,
+		gDriveFolder
+	} = params
 	return new Promise(async function(resolve, reject) {
 		var data = {};
 		var files = [];
@@ -16,29 +19,27 @@ var getAllGDriveFiles = function(params) {
 			data = await listFiles({
 				auth: auth,
 				nextPageTkn: data.nextPageToken,
-				folderId: folderId
+				gDriveFolder: gDriveFolder
 			})
 			data.files.map((file) => {
 				files.push(file.name)
 			});
-			console.log(data.nextPageToken);
-			} while (data.nextPageToken != null);
+			console.log('nextPageToken: ', data.nextPageToken);
+		} while (data.nextPageToken != null);
 		console.log('done');
 		console.log(files);
 		resolve(files)
 	});
 }
 
-var getAllLocalFiles = function (folder) {
+var getAllLocalFiles = function(localFolder) {
 	return new Promise(function(resolve, reject) {
-		fs.readdir(folder, (err, filenames) => {
+		fs.readdir(localFolder, (err, filenames) => {
 			if (err) reject(err)
-			var numbers = [1, 5, 10, 15];
-			var onlyFiles= numbers.map(function(x) {
-				return x * 2;
+			const onlyFiles = filenames.filter(file => {
+				return fs.lstatSync(localFolder+file).isFile();				
 			});
-			console.log(filenames);
-			resolve(filenames)
+			resolve(onlyFiles)
 		});
 	});
 }
@@ -64,18 +65,21 @@ function compareFiles(params) {
 }
 
 function sendFilesInArray(params) {
- let {
-  filenames, auth, folder
- } = params
+	let {
+		filenames,
+		auth,
+		localFolder,
+		gDriveFolder
+	} = params
 	Promise.map(filenames, function(currentFile) {
 			return upload({
 					filename: currentFile,
 					auth: auth,
-     folder:folder
+					localFolder: localFolder,
+					gDriveFolder: gDriveFolder
 				})
 				.then(async function(data) {
 					console.log(chalk.green(`\nFile saved: ${currentFile} ${data.status} ${data.statusText}`));
-					//await deleteFile(currentFile);
 				})
 				.catch(function(err) {
 					console.log(chalk.red('ERROR'));
@@ -86,9 +90,11 @@ function sendFilesInArray(params) {
 		})
 		.then(function(data) {
 			console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-			console.log({data});
+			console.log({
+				data
+			});
 			// const filesNotSent = data.filter((value) => isString(value))
-   const filesNotSent = data;
+			const filesNotSent = data;
 			console.log({
 				filesNotSent
 			});
@@ -100,7 +106,7 @@ function sendFilesInArray(params) {
 
 module.exports = {
 	getAllGDriveFiles,
- getAllLocalFiles,
- compareFiles,
- sendFilesInArray
+	getAllLocalFiles,
+	compareFiles,
+	sendFilesInArray
 }
