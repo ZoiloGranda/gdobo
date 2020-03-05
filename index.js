@@ -8,7 +8,8 @@ const chalk = require('chalk');
 const {
 	listFiles,
 	upload,
-	getGDriveFolders
+	getGDriveFolders,
+	download
 } = require('./google-drive-api');
 const {
 	getAllGDriveFiles,
@@ -29,7 +30,7 @@ async function startProcess(auth) {
 		await checkEnv();
 	} catch (e) {
 		if (e.code === 'ENOENT' || 'ENOTDIR') {
-			console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid localFolder'))
+			console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid local Folder'))
 		}
 		console.log(e);
 		process.exit()
@@ -162,6 +163,39 @@ sync: Uploads the files from a local folder that are not on the specified Google
 folders: Gets all the folders names and id's from Google Drive
 help: Shows this message
 `));
+}
+
+async function downloadHandler(auth){
+	let allGDriveFiles = await getAllGDriveFiles({auth: auth,
+	gDriveFolder:gDriveFolder, nameAndId: true})
+	Promise.map(allGDriveFiles, function(currentFile) {
+			return download({
+					filename: currentFile.name,
+					fileId: currentFile.id,
+					auth: auth,
+					localFolder: localFolder,
+					gDriveFolder: gDriveFolder
+				})
+				.then(function() {
+					console.log(chalk.green(`\nFile saved: ${localFolder}${currentFile.name}`));
+				})
+				.catch(function(err) {
+					console.log(chalk.red('ERROR'));
+					console.log(err);
+				});
+		}, {
+			concurrency: 1
+		})
+		.then(function(data) {
+			console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
+			console.log({
+				data
+			});
+		}).catch(function(err) {
+			console.log('ERROR');
+			console.log(err);
+		});
+	
 }
 
 function deleteFile(filename) {

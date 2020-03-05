@@ -10,7 +10,8 @@ const chalk = require('chalk');
 var getAllGDriveFiles = function(params) {
 	let {
 		auth,
-		gDriveFolder
+		gDriveFolder,
+		nameAndId,
 	} = params
 	return new Promise(async function(resolve, reject) {
 		var data = {};
@@ -19,11 +20,17 @@ var getAllGDriveFiles = function(params) {
 			data = await listFiles({
 				auth: auth,
 				nextPageTkn: data.nextPageToken,
-				gDriveFolder: gDriveFolder
+				gDriveFolder: gDriveFolder,
 			})
-			data.files.map((file) => {
-				files.push(file.name)
-			});
+			if (nameAndId) {
+				data.files.map((file) => {
+					files.push(file)
+				});
+			} else {
+				data.files.map((file) => {
+					files.push(file.name)
+				});
+			}
 			console.log('nextPageToken: ', data.nextPageToken);
 		} while (data.nextPageToken != null);
 		console.log('done');
@@ -78,7 +85,7 @@ function sendFilesInArray(params) {
 					localFolder: localFolder,
 					gDriveFolder: gDriveFolder
 				})
-				.then(async function(data) {
+				.then(function(data) {
 					console.log(chalk.green(`\nFile saved: ${currentFile} ${data.status} ${data.statusText}`));
 				})
 				.catch(function(err) {
@@ -92,11 +99,6 @@ function sendFilesInArray(params) {
 			console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
 			console.log({
 				data
-			});
-			// const filesNotSent = data.filter((value) => isString(value))
-			const filesNotSent = data;
-			console.log({
-				filesNotSent
 			});
 		}).catch(function(err) {
 			console.log('ERROR');

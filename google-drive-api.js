@@ -1,4 +1,6 @@
-const {google} = require('googleapis');
+const {
+	google
+} = require('googleapis');
 const chalk = require('chalk');
 const fs = require('fs');
 const readline = require('readline');
@@ -8,12 +10,12 @@ const readline = require('readline');
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
 var listFiles = function(params) {
- return new Promise(function(resolve, reject) {
-	var {
-		auth,
-		nextPageTkn,
-  gDriveFolder
-	} = params;
+	return new Promise(function(resolve, reject) {
+		var {
+			auth,
+			nextPageTkn,
+			gDriveFolder
+		} = params;
 		const drive = google.drive({
 			version: 'v3',
 			auth
@@ -29,14 +31,14 @@ var listFiles = function(params) {
 		listParams.pageToken = nextPageTkn
 		drive.files.list(listParams, (err, res) => {
 			if (err) {
-    console.log('The API returned an error: ');
-    console.log(err);
-    reject(err)
-   }
+				console.log('The API returned an error: ');
+				console.log(err);
+				reject(err)
+			}
 			const files = res.data.files;
 			if (files.length) {
 				console.log('Files:');
-    resolve(res.data)
+				resolve(res.data)
 			} else {
 				resolve('No files found.')
 				console.log('No files found.');
@@ -47,12 +49,12 @@ var listFiles = function(params) {
 
 function upload(params) {
 	return new Promise(function(resolve, reject) {
-  let {
-   auth,
-   filename,
-   localFolder,
-   gDriveFolder
-  } = params;
+		let {
+			auth,
+			filename,
+			localFolder,
+			gDriveFolder
+		} = params;
 		console.log(chalk.inverse(`UPLOADING: ${filename}`));
 		const fileSize = fs.statSync(localFolder + filename).size;
 		const drive = google.drive({
@@ -61,7 +63,7 @@ function upload(params) {
 		});
 		var fileMetadata = {
 			'name': filename,
-   parents: [gDriveFolder]
+			parents: [gDriveFolder]
 		};
 		var media = {
 			mimeType: 'audio/mpeg',
@@ -83,8 +85,7 @@ function upload(params) {
 				console.log(chalk.red(`ERROR WITH: ${filename}`));
 				console.log(err);
 				reject(err)
-			}
-			else {
+			} else {
 				resolve(file)
 			}
 		})
@@ -92,10 +93,10 @@ function upload(params) {
 }
 
 var getGDriveFolders = function(params) {
- return new Promise(function(resolve, reject) {
-	var {
-		auth,
-	} = params;
+	return new Promise(function(resolve, reject) {
+		var {
+			auth,
+		} = params;
 		const drive = google.drive({
 			version: 'v3',
 			auth
@@ -108,14 +109,14 @@ var getGDriveFolders = function(params) {
 		};
 		drive.files.list(listParams, (err, res) => {
 			if (err) {
-    console.log('The API returned an error: ');
-    console.log(err);
-    reject(err)
-   }
+				console.log('The API returned an error: ');
+				console.log(err);
+				reject(err)
+			}
 			const folders = res.data.files;
 			if (folders.length) {
 				console.log('Folders:');
-    resolve(folders)
+				resolve(folders)
 			} else {
 				resolve('No Folders found.')
 				console.log('No Folders found.');
@@ -124,8 +125,52 @@ var getGDriveFolders = function(params) {
 	});
 }
 
+var download = function(params) {
+	return new Promise(function(resolve, reject) {
+		let {
+			auth,
+			gDriveFolder,
+			localFolder,
+			fileId,
+			filename
+		} = params;
+		var dest = fs.createWriteStream(`${localFolder}${filename}`);
+  console.log(`${localFolder}${filename}`);
+		const drive = google.drive({
+			version: 'v3',
+			auth
+		});
+		drive.files.get({
+			fileId: fileId,
+			alt: 'media',
+		}, {
+			responseType: 'stream'
+		}, (err, {
+			data
+		}) => {
+			if (err) {
+				console.log('err', err);
+				reject(err)
+			} else {
+    data.pipe(dest);
+    console.log(data);
+    console.log('nicee');
+    data.on('end', function () {
+     console.log('Saved a file');
+     resolve()
+    })
+    data.on('error', function (err) {
+     console.log(err);
+     reject()
+    })
+			}
+		})
+	});
+}
+
 module.exports = {
 	listFiles,
- upload,
- getGDriveFolders
+	upload,
+	getGDriveFolders,
+	download
 }
