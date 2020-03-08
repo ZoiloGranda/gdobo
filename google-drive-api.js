@@ -23,7 +23,7 @@ var listFiles = function(params) {
 		console.log('voy');
 		let listParams = {
 			pageSize: 500,
-			fields: 'nextPageToken, files(id, name)',
+			fields: 'nextPageToken, files(id, name, size)',
 			pageToken: nextPageTkn,
 			//q: "mimeType='application/vnd.google-apps.folder'"
 			q: `parents='${gDriveFolder}'`
@@ -132,7 +132,8 @@ var download = function(params) {
 			gDriveFolder,
 			localFolder,
 			fileId,
-			filename
+			filename,
+			fileSize
 		} = params;
 		var dest = fs.createWriteStream(`${localFolder}${filename}`);
   console.log(`${localFolder}${filename}`);
@@ -140,6 +141,8 @@ var download = function(params) {
 			version: 'v3',
 			auth
 		});
+		let chunkAccumulator = 0;
+		fileSize = Number(fileSize)
 		drive.files.get({
 			fileId: fileId,
 			alt: 'media',
@@ -153,16 +156,20 @@ var download = function(params) {
 				reject(err)
 			} else {
     data.pipe(dest);
-    console.log(data);
-    console.log('nicee');
     data.on('end', function () {
-     console.log('Saved a file');
      resolve()
     })
     data.on('error', function (err) {
      console.log(err);
      reject()
     })
+				data.on('data', function (chunk) {
+					chunkAccumulator += chunk.length;
+					const progress = (chunkAccumulator / fileSize) * 100;
+					readline.clearLine(process.stdout, 0)
+					readline.cursorTo(process.stdout, 0, null)
+					process.stdout.write(chalk.inverse(`${Math.round(progress)}% complete`));
+				})
 			}
 		})
 	});

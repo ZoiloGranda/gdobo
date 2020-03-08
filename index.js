@@ -167,11 +167,13 @@ help: Shows this message
 
 async function downloadHandler(auth){
 	let allGDriveFiles = await getAllGDriveFiles({auth: auth,
-	gDriveFolder:gDriveFolder, nameAndId: true})
+	gDriveFolder:gDriveFolder, nameIdSize: true})
+	console.log({allGDriveFiles});
 	Promise.map(allGDriveFiles, function(currentFile) {
 			return download({
 					filename: currentFile.name,
 					fileId: currentFile.id,
+					fileSize: currentFile.size,
 					auth: auth,
 					localFolder: localFolder,
 					gDriveFolder: gDriveFolder

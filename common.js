@@ -11,7 +11,7 @@ var getAllGDriveFiles = function(params) {
 	let {
 		auth,
 		gDriveFolder,
-		nameAndId,
+		nameIdSize,
 	} = params
 	return new Promise(async function(resolve, reject) {
 		var data = {};
@@ -22,7 +22,7 @@ var getAllGDriveFiles = function(params) {
 				nextPageTkn: data.nextPageToken,
 				gDriveFolder: gDriveFolder,
 			})
-			if (nameAndId) {
+			if (nameIdSize) {
 				data.files.map((file) => {
 					files.push(file)
 				});
