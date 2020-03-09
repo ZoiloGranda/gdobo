@@ -156,7 +156,7 @@ function foldersHandler(auth) {
 }
 
 function helpHandler() {
-	console.log(chalk.magenta (`
+	console.log(chalk.magenta(`
 upload: Uploads ALL files from local folder to the specified Google Drive folder
 compare: Compares files between a local folder and a Google Drive folder
 sync: Uploads the files from a local folder that are not on the specified Google Drive folder
@@ -165,11 +165,33 @@ help: Shows this message
 `));
 }
 
-async function downloadHandler(auth){
-	let allGDriveFiles = await getAllGDriveFiles({auth: auth,
-	gDriveFolder:gDriveFolder, nameIdSize: true})
-	console.log({allGDriveFiles});
-	Promise.map(allGDriveFiles, function(currentFile) {
+//downloads all the files from a google drive folder
+//compares files by name to avoid downloading the same file twice
+async function downloadHandler(auth) {
+	let allLocalFiles = await getAllLocalFiles(localFolder);
+	let allGDriveFiles = await getAllGDriveFiles({
+		auth: auth,
+		gDriveFolder: gDriveFolder,
+		nameIdSize: true
+	})
+	let allGDriveFilesNames = _.map(allGDriveFiles, 'name');
+	let differentFiles = await compareFiles({
+		allLocalFiles: allLocalFiles,
+		allGDriveFiles: allGDriveFilesNames
+	})
+	let filesToDownload = _.filter(allGDriveFiles, function(currentFile) {
+		for(let element of differentFiles.areInGDrive){
+			if (currentFile.name === element) {
+				return true
+				break
+			}
+		}
+	});
+	console.log({
+		filesToDownload
+	});
+
+	Promise.map(filesToDownload, function(currentFile) {
 			return download({
 					filename: currentFile.name,
 					fileId: currentFile.id,
@@ -197,7 +219,6 @@ async function downloadHandler(auth){
 			console.log('ERROR');
 			console.log(err);
 		});
-	
 }
 
 function deleteFile(filename) {

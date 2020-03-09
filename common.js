@@ -39,6 +39,7 @@ var getAllGDriveFiles = function(params) {
 	});
 }
 
+//only returns files not folders
 var getAllLocalFiles = function(localFolder) {
 	return new Promise(function(resolve, reject) {
 		fs.readdir(localFolder, (err, filenames) => {
@@ -51,7 +52,7 @@ var getAllLocalFiles = function(localFolder) {
 	});
 }
 
-
+//compares files by name
 function compareFiles(params) {
 	let {
 		allLocalFiles,
