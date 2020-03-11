@@ -9,13 +9,15 @@ const {
 	listFiles,
 	upload,
 	getGDriveFolders,
-	download
+	download,
+	deleteFileGDrive
 } = require('./google-drive-api');
 const {
 	getAllGDriveFiles,
 	getAllLocalFiles,
 	compareFiles,
-	sendFilesInArray
+	sendFilesInArray,
+	askForConfirmation
 } = require('./common');
 const _ = require('lodash');
 
@@ -92,18 +94,82 @@ function checkArgs(auth) {
 				helpHandler()
 				break;
 			default:
-				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, posible values are <upload>, <compare>, <sync>, <folders>, <help>`));
+				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, posible values are <upload>, <download>, <compare>, <sync>, <folders>, <help>`));
 		}
 	} else {
-		console.log(chalk.red(`No arguments provided, posible values are <upload>, <compare>, <sync>, <folders>, <help>`));
+		console.log(chalk.red(`No arguments provided, posible values are <upload>, <download>, <compare>, <sync>, <folders>, <help>`));
 	}
 }
 
-function uploadHandler(auth) {
-	getAllLocalFiles(localFolder)
+async function syncHandler(auth) {
+	try {
+		let allLocalFiles = await getAllLocalFiles(localFolder);
+		let allGDriveFiles = await getAllGDriveFiles({
+			auth: auth,
+			gDriveFolder: gDriveFolder,
+			nameIdSize: true
+		})
+		let allGDriveFilesNames = _.map(allGDriveFiles, 'name');
+		let differentFiles = await compareFiles({
+			allLocalFiles: allLocalFiles,
+			allGDriveFiles: allGDriveFilesNames
+		})
+		if (differentFiles.areInGDrive.length === 0) {
+			console.log(chalk.yellow(`There are no files to Sync`));
+			process.exit();
+		}
+		let filesToDelete = _.filter(allGDriveFiles, function(currentFile) {
+			for (let element of differentFiles.areInGDrive) {
+				if (currentFile.name === element) {
+					return true
+					break
+				}
+			}
+		});
+		console.log(chalk.yellow(`Files to delete from Google Drive:`));
+		filesToDelete.forEach(element => console.log(chalk.yellow(element.name)));
+		let answer = await askForConfirmation();
+		console.log(answer);
+		if (answer === 'y') {
+			Promise.map(filesToDelete, function(currentFile) {
+					return deleteFileGDrive({
+							filename: currentFile.name,
+							fileId: currentFile.id,
+							auth: auth,
+							gDriveFolder: gDriveFolder
+						})
+						.then(function(deletedFile) {
+							console.log(chalk.green(`\nFile deleted successfully: ${deletedFile}`));
+						})
+						.catch(function(err) {
+							console.log(chalk.red('ERROR'));
+							console.log(err);
+						});
+				}, {
+					concurrency: 1
+				})
+				.then(function(data) {
+					console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
+					console.log({
+						data
+					});
+				}).catch(function(err) {
+					console.log('ERROR');
+					console.log(err);
+				});
+		} else if (answer === 'n') {
+			console.log(chalk.cyan(`Nothing to do here`));
+			process.exit()
+		}
+	} catch (e) {
+		console.log(e);
+		process.exit()
+	} finally {
+
+	}
 }
 
-async function syncHandler(auth) {
+async function uploadHandler(auth) {
 	let allGDriveFiles = await getAllGDriveFiles({
 		auth: auth,
 		gDriveFolder: gDriveFolder
@@ -113,10 +179,10 @@ async function syncHandler(auth) {
 		allLocalFiles: allLocalFiles,
 		allGDriveFiles: allGDriveFiles
 	})
-	console.log({
-		differentFiles
-	});
 	let filesToUpload = differentFiles.areInLocal;
+	console.log({
+		filesToUpload
+	});
 	if (filesToUpload[0]) {
 		sendFilesInArray({
 			auth: auth,
@@ -130,8 +196,7 @@ async function syncHandler(auth) {
 
 }
 
-function compareHandler(auth) {
-	return new Promise(async function(resolve, reject) {
+async function compareHandler(auth) {
 		let allGDriveFiles = await getAllGDriveFiles({
 			auth: auth,
 			gDriveFolder: gDriveFolder
@@ -141,28 +206,30 @@ function compareHandler(auth) {
 			allGDriveFiles: allGDriveFiles,
 			allLocalFiles: allLocalFiles
 		})
-		resolve(allFilesList)
-	});
+		if (_.isEqual(allFilesList.areInLocal, allFilesList.areInGDrive)) {
+			console.log(chalk.yellow(`The same files are in local and Google Drive`));
+		}
+		process.exit();
 }
 
-function foldersHandler(auth) {
-	return new Promise(async function(resolve, reject) {
+async function foldersHandler(auth) {
 		let allGDriveFolders = await getGDriveFolders({
 			auth: auth
 		});
 		console.log(allGDriveFolders);
-		resolve(allGDriveFolders)
-	});
+		process.exit()
 }
 
 function helpHandler() {
 	console.log(chalk.magenta(`
-upload: Uploads ALL files from local folder to the specified Google Drive folder
-compare: Compares files between a local folder and a Google Drive folder
-sync: Uploads the files from a local folder that are not on the specified Google Drive folder
-folders: Gets all the folders names and id's from Google Drive
-help: Shows this message
+${chalk.inverse('upload')}: Uploads all files from a local folder to the specified Google Drive folder. It will check the filenames and skip the ones that are already on Google Drive.
+\n${chalk.inverse('download')}: Downloads all the files from the Google Drive folder to the local folder. It checks the filenames before downloading, to avoid downloading duplicate files
+\n${chalk.inverse('compare')}: Compares files between a local folder and a Google Drive folder
+\n${chalk.inverse('sync')}: Removes the files that are on the Google Drive folder but not on local. Should be used when some files were deleted from the local folder, and they should be removed from Google Drive too. 
+\n${chalk.inverse('folders')}: Gets all the folders names and id's from Google Drive
+\n${chalk.inverse('help')}: Shows this message
 `));
+process.exit()
 }
 
 //downloads all the files from a google drive folder
@@ -180,7 +247,7 @@ async function downloadHandler(auth) {
 		allGDriveFiles: allGDriveFilesNames
 	})
 	let filesToDownload = _.filter(allGDriveFiles, function(currentFile) {
-		for(let element of differentFiles.areInGDrive){
+		for (let element of differentFiles.areInGDrive) {
 			if (currentFile.name === element) {
 				return true
 				break
@@ -221,7 +288,7 @@ async function downloadHandler(auth) {
 		});
 }
 
-function deleteFile(filename) {
+function deleteFileLocal(filename) {
 	return new Promise(function(resolve, reject) {
 		fs.unlink(localFolder + filename, function(err) {
 			if (err) {

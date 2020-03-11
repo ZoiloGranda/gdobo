@@ -20,7 +20,7 @@ var listFiles = function(params) {
 			version: 'v3',
 			auth
 		});
-		console.log('voy');
+		console.log(chalk.cyan('Getting files, please wait'));
 		let listParams = {
 			pageSize: 500,
 			fields: 'nextPageToken, files(id, name, size)',
@@ -101,7 +101,7 @@ var getGDriveFolders = function(params) {
 			version: 'v3',
 			auth
 		});
-		console.log('voy');
+		console.log(chalk.cyan('Getting folders, please wait'));
 		let listParams = {
 			pageSize: 500,
 			fields: 'files(id, name)',
@@ -136,7 +136,7 @@ var download = function(params) {
 			fileSize
 		} = params;
 		var dest = fs.createWriteStream(`${localFolder}${filename}`);
-  console.log(`${localFolder}${filename}`);
+		console.log(`${localFolder}${filename}`);
 		const drive = google.drive({
 			version: 'v3',
 			auth
@@ -155,15 +155,15 @@ var download = function(params) {
 				console.log('err', err);
 				reject(err)
 			} else {
-    data.pipe(dest);
-    data.on('end', function () {
-     resolve()
-    })
-    data.on('error', function (err) {
-     console.log(err);
-     reject()
-    })
-				data.on('data', function (chunk) {
+				data.pipe(dest);
+				data.on('end', function() {
+					resolve()
+				})
+				data.on('error', function(err) {
+					console.log(err);
+					reject()
+				})
+				data.on('data', function(chunk) {
 					chunkAccumulator += chunk.length;
 					const progress = (chunkAccumulator / fileSize) * 100;
 					readline.clearLine(process.stdout, 0)
@@ -175,9 +175,39 @@ var download = function(params) {
 	});
 }
 
+var deleteFileGDrive = function(params) {
+	return new Promise(function(resolve, reject) {
+		
+	let {
+		filename,
+		fileId,
+		auth,
+		gDriveFolder
+	} = params;
+	const drive = google.drive({
+		version: 'v3',
+		auth: auth
+	})
+	console.log(drive.files.delete);
+	drive.files.delete({
+		fileId: fileId
+	}, (err, res) => {
+		console.log({res});
+		console.log({err});
+		if (err) {
+			console.error('The API returned an error.');
+			reject(err)
+		} else {
+			resolve(filename)
+		}
+	})
+});
+}
+
 module.exports = {
 	listFiles,
 	upload,
 	getGDriveFolders,
-	download
+	download,
+	deleteFileGDrive
 }

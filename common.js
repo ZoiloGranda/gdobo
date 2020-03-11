@@ -6,6 +6,12 @@ const _ = require('lodash');
 const fs = require('fs');
 const Promise = require('bluebird');
 const chalk = require('chalk');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
 
 var getAllGDriveFiles = function(params) {
 	let {
@@ -33,8 +39,7 @@ var getAllGDriveFiles = function(params) {
 			}
 			console.log('nextPageToken: ', data.nextPageToken);
 		} while (data.nextPageToken != null);
-		console.log('done');
-		console.log(files);
+		console.log(chalk.cyan(`Finished getting files list`))
 		resolve(files)
 	});
 }
@@ -45,7 +50,7 @@ var getAllLocalFiles = function(localFolder) {
 		fs.readdir(localFolder, (err, filenames) => {
 			if (err) reject(err)
 			const onlyFiles = filenames.filter(file => {
-				return fs.lstatSync(localFolder+file).isFile();				
+				return fs.lstatSync(localFolder + file).isFile();
 			});
 			resolve(onlyFiles)
 		});
@@ -107,9 +112,26 @@ function sendFilesInArray(params) {
 		});
 }
 
+function askForConfirmation() {
+	return new Promise(function(resolve, reject) {
+		rl.question(`Are you sure? Y/N\n`, (userInput) => {
+			userInput = userInput.toLowerCase();
+			if (userInput.length >= 2 || userInput.length === 0 || (userInput != 'y' && userInput != 'n')) {
+				console.log(chalk.red('ERROR: Input should be one character Y=Yes, N=No'));
+				rl.close();
+				reject()
+			} else {
+				rl.close();
+				resolve(userInput)
+			}
+		});
+	});
+}
+
 module.exports = {
 	getAllGDriveFiles,
 	getAllLocalFiles,
 	compareFiles,
-	sendFilesInArray
+	sendFilesInArray,
+	askForConfirmation
 }
