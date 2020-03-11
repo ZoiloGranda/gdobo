@@ -1,5 +1,5 @@
 ## Warning
-Copy the directory you want to upload and work on that folder, this script removes the files after uploading them to avoid duplicated uploads.
+To avoid the unintentional lost of files, copy the directory you want to upload/sync and work on that folder if possible. This script removes files when using the sync operations, it ask for confirmation before deleting files.
 
 ### 1
 Enable the Drive API
@@ -14,7 +14,7 @@ In resulting dialog click DOWNLOAD CLIENT CONFIGURATION and save the file `crede
 Create `.env` based on `.env-example`
 
 ### 4
-`npm start`
+`npm start help` To see the list of available parameters
 
 ### 5
 The first time you run the sample, it will prompt you to authorize access:
