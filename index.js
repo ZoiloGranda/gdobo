@@ -61,11 +61,16 @@ function checkEnv() {
 			console.log(chalk.red('Error: FOLDER_TO_UPLOAD parameter NOT found in .env file'));
 			reject()
 		}
-		if (fs.lstatSync(localFolder).isDirectory()) {
-			resolve();
-		} else {
+		if (!fs.lstatSync(localFolder).isDirectory()) {
 			console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid localFolder'))
 			reject()
+		}
+		if (gDriveFolder) {
+			console.log(chalk.cyan(`Google Drive folder to operate: ${gDriveFolder}`));
+			resolve();
+		} else {
+			console.log(chalk.yellow('Waning: FOLDER_IN_DRIVE_ID parameter NOT found in .env file, use the folders parameter to see a list of folders. File operations will fail'));
+			resolve();
 		}
 	});
 }
@@ -197,6 +202,7 @@ async function uploadHandler(auth) {
 }
 
 async function compareHandler(auth) {
+	try {
 		let allGDriveFiles = await getAllGDriveFiles({
 			auth: auth,
 			gDriveFolder: gDriveFolder
@@ -210,14 +216,22 @@ async function compareHandler(auth) {
 			console.log(chalk.yellow(`The same files are in local and Google Drive`));
 		}
 		process.exit();
+	} catch (e) {
+		console.log(e);
+		process.exit();
+	} finally {
+		process.exit();
+	}
+
+
 }
 
 async function foldersHandler(auth) {
-		let allGDriveFolders = await getGDriveFolders({
-			auth: auth
-		});
-		console.log(allGDriveFolders);
-		process.exit()
+	let allGDriveFolders = await getGDriveFolders({
+		auth: auth
+	});
+	console.log(allGDriveFolders);
+	process.exit()
 }
 
 function helpHandler() {
@@ -229,7 +243,7 @@ ${chalk.inverse('upload')}: Uploads all files from a local folder to the specifi
 \n${chalk.inverse('folders')}: Gets all the folders names and id's from Google Drive
 \n${chalk.inverse('help')}: Shows this message
 `));
-process.exit()
+	process.exit()
 }
 
 //downloads all the files from a google drive folder
@@ -246,6 +260,10 @@ async function downloadHandler(auth) {
 		allLocalFiles: allLocalFiles,
 		allGDriveFiles: allGDriveFilesNames
 	})
+	if (differentFiles.areInGDrive.length === 0) {
+		console.log(chalk.yellow(`Nothing to download, folders are updated`));
+		process.exit()
+	}
 	let filesToDownload = _.filter(allGDriveFiles, function(currentFile) {
 		for (let element of differentFiles.areInGDrive) {
 			if (currentFile.name === element) {

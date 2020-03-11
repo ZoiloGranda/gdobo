@@ -35,8 +35,7 @@ var listFiles = function(params) {
 				console.log(err);
 				reject(err)
 			}
-			const files = res.data.files;
-			if (files.length) {
+			if (res && res.data && res.data.files.length) {
 				console.log('Files:');
 				resolve(res.data)
 			} else {

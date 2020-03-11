@@ -14,12 +14,12 @@ const rl = readline.createInterface({
 });
 
 var getAllGDriveFiles = function(params) {
-	let {
-		auth,
-		gDriveFolder,
-		nameIdSize,
-	} = params
 	return new Promise(async function(resolve, reject) {
+		let {
+			auth,
+			gDriveFolder,
+			nameIdSize,
+		} = params
 		var data = {};
 		var files = [];
 		do {
