@@ -17,7 +17,8 @@ const {
 	getAllLocalFiles,
 	compareFiles,
 	sendFilesInArray,
-	askForConfirmation
+	askForConfirmation,
+	deleteLocalFile
 } = require('./common');
 const _ = require('lodash');
 
@@ -89,6 +90,9 @@ function checkArgs(auth) {
 			case 'sync':
 				syncHandler(auth)
 				break;
+			case 'localsync':
+				localsyncHandler(auth)
+				break;
 			case 'folders':
 				foldersHandler(auth)
 				break;
@@ -99,10 +103,10 @@ function checkArgs(auth) {
 				helpHandler()
 				break;
 			default:
-				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, posible values are <upload>, <download>, <compare>, <sync>, <folders>, <help>`));
+				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, use <help> to get a list of possible parameters`));
 		}
 	} else {
-		console.log(chalk.red(`No arguments provided, posible values are <upload>, <download>, <compare>, <sync>, <folders>, <help>`));
+		console.log(chalk.red(`No arguments provided, use <help> to get a list of possible parameters`));
 	}
 }
 
@@ -133,7 +137,10 @@ async function syncHandler(auth) {
 		});
 		console.log(chalk.yellow(`Files to delete from Google Drive:`));
 		filesToDelete.forEach(element => console.log(chalk.yellow(element.name)));
-		let answer = await askForConfirmation();
+		let answer = await askForConfirmation().catch(err=>{
+			console.log(err);
+			process.exit()
+		});
 		console.log(answer);
 		if (answer === 'y') {
 			Promise.map(filesToDelete, function(currentFile) {
@@ -241,6 +248,7 @@ ${chalk.inverse('upload')}: Uploads all files from a local folder to the specifi
 \n${chalk.inverse('compare')}: Compares files between a local folder and a Google Drive folder
 \n${chalk.inverse('sync')}: Removes the files that are on the Google Drive folder but not on local. Should be used when some files were deleted from the local folder, and they should be removed from Google Drive too. 
 \n${chalk.inverse('folders')}: Gets all the folders names and id's from Google Drive
+\n${chalk.inverse('localsync')}: Removes local files that were removed from the Google Drive folder. Should be used when there were files removed from the Google Drive folder and the local folder needs to be updated.
 \n${chalk.inverse('help')}: Shows this message
 `));
 	process.exit()
@@ -275,7 +283,6 @@ async function downloadHandler(auth) {
 	console.log({
 		filesToDownload
 	});
-
 	Promise.map(filesToDownload, function(currentFile) {
 			return download({
 					filename: currentFile.name,
@@ -306,18 +313,58 @@ async function downloadHandler(auth) {
 		});
 }
 
-function deleteFileLocal(filename) {
-	return new Promise(function(resolve, reject) {
-		fs.unlink(localFolder + filename, function(err) {
-			if (err) {
-				console.log(chalk.red(`Could not delete: ${filename}`));
-				reject(err)
-			} else {
-				console.log(chalk.cyan(`Successfully deleted: ${filename}`));
-				resolve();
-			}
+//removes local files that were removed from google drive
+async function localsyncHandler(auth) {
+	let allLocalFiles = await getAllLocalFiles(localFolder);
+	let allGDriveFiles = await getAllGDriveFiles({
+		auth: auth,
+		gDriveFolder: gDriveFolder
+	})
+	let differentFiles = await compareFiles({
+		allLocalFiles: allLocalFiles,
+		allGDriveFiles: allGDriveFiles
+	})
+	let filesToDelete = differentFiles.areInLocal; 
+	if (filesToDelete.length === 0) {
+		console.log(chalk.yellow(`Nothing to delete, local folder is updated`));
+		process.exit()
+	}
+	console.log(chalk.yellow(`Files to delete from local folder:`));
+	filesToDelete.forEach(element => console.log(chalk.yellow(element)));
+	let answer = await askForConfirmation().catch(err=>{
+		console.log(err);
+		process.exit()
+	})
+	if (answer === 'n') {
+		console.log(chalk.yellow(`Exiting...`));
+		process.exit()
+	}
+	// localFolder, filename
+	Promise.map(filesToDelete, function(currentFile) {
+			return deleteLocalFile({
+					filename: currentFile,
+					localFolder: localFolder,
+				})
+				.then(function() {
+					console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
+				})
+				.catch(function(err) {
+					console.log(chalk.red('ERROR'));
+					console.log(err);
+				});
+		}, {
+			concurrency: 1
 		})
-	});
+		.then(function(data) {
+			console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
+			console.log({
+				data
+			});
+		}).catch(function(err) {
+			console.log('ERROR');
+			console.log(err);
+		}); 
+
 }
 
 module.exports = {

@@ -128,10 +128,27 @@ function askForConfirmation() {
 	});
 }
 
+function deleteLocalFile(params) {
+	return new Promise(function(resolve, reject) {
+		let{ localFolder, filename }= params
+		fs.unlink(localFolder + filename, function(err) {
+			if (err) {
+				console.log(chalk.red(`Could not delete: ${filename}`));
+				reject(err)
+			} else {
+				console.log(chalk.cyan(`Successfully deleted: ${filename}`));
+				resolve();
+			}
+		})
+	});
+	
+}
+
 module.exports = {
 	getAllGDriveFiles,
 	getAllLocalFiles,
 	compareFiles,
 	sendFilesInArray,
-	askForConfirmation
+	askForConfirmation,
+	deleteLocalFile
 }
