@@ -135,7 +135,7 @@ var download = function(params) {
 			fileSize
 		} = params;
 		var dest = fs.createWriteStream(`${localFolder}${filename}`);
-		console.log(`${localFolder}${filename}`);
+		console.log(`----------------------\nCreated File: ${localFolder}${filename}`);
 		const drive = google.drive({
 			version: 'v3',
 			auth
@@ -167,7 +167,7 @@ var download = function(params) {
 					const progress = (chunkAccumulator / fileSize) * 100;
 					readline.clearLine(process.stdout, 0)
 					readline.cursorTo(process.stdout, 0, null)
-					process.stdout.write(chalk.inverse(`${Math.round(progress)}% complete`));
+					process.stdout.write(chalk.inverse(`Downloading ${Math.round(progress)}% completed`));
 				})
 			}
 		})

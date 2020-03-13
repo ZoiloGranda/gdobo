@@ -307,6 +307,7 @@ async function downloadHandler(auth) {
 			console.log({
 				data
 			});
+			process.exit();
 		}).catch(function(err) {
 			console.log('ERROR');
 			console.log(err);
