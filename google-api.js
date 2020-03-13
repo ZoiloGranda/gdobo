@@ -19,6 +19,7 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 const {startProcess} = require('./index')
+const open = require('open');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/drive'];
@@ -59,12 +60,13 @@ function authorize(credentials, callback) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @param {getEventsCallback} callback The callback for the authorized client.
  */
- function getAccessToken(oAuth2Client, callback) {
+ async function getAccessToken(oAuth2Client, callback) {
   const authUrl = oAuth2Client.generateAuthUrl({
    access_type: 'offline',
    scope: SCOPES,
   });
   console.log('Authorize this app by visiting this url:', authUrl);
+  await open(authUrl);
   const rl = readline.createInterface({
    input: process.stdin,
    output: process.stdout,
