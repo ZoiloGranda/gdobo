@@ -79,7 +79,7 @@ function checkEnv() {
 function checkArgs(auth) {
 	var myArgs = process.argv.slice(2);
 	if (myArgs[0]) {
-		console.log(chalk.cyan(`Operation: ${myArgs[0]}`));
+		console.log(chalk.cyan(`Operation: ${chalk.inverse(myArgs[0])}`));
 		switch (myArgs[0]) {
 			case 'upload':
 				uploadHandler(auth)
@@ -242,7 +242,7 @@ async function foldersHandler(auth) {
 }
 
 function helpHandler() {
-	console.log(chalk.magenta(`
+	console.log(chalk.white(`
 ${chalk.inverse('upload')}: Uploads all files from a local folder to the specified Google Drive folder. It will check the filenames and skip the ones that are already on Google Drive.
 \n${chalk.inverse('download')}: Downloads all the files from the Google Drive folder to the local folder. It checks the filenames before downloading, to avoid downloading duplicate files
 \n${chalk.inverse('compare')}: Compares files between a local folder and a Google Drive folder
@@ -360,6 +360,7 @@ async function localsyncHandler(auth) {
 			console.log({
 				data
 			});
+			process.exit()
 		}).catch(function(err) {
 			console.log('ERROR');
 			console.log(err);
