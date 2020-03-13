@@ -54,18 +54,18 @@ function upload(params) {
 			localFolder,
 			gDriveFolder
 		} = params;
-		console.log(chalk.inverse(`UPLOADING: ${filename}`));
+		console.log(chalk.inverse(`----------------------\nUPLOADING: ${filename}`));
 		const fileSize = fs.statSync(localFolder + filename).size;
 		const drive = google.drive({
 			version: 'v3',
 			auth: auth
 		});
-		var fileMetadata = {
+		let fileMetadata = {
 			'name': filename,
 			parents: [gDriveFolder]
 		};
-		var media = {
-			mimeType: 'audio/mpeg',
+		let media = {
+			// mimeType: 'audio/mpeg',
 			body: fs.createReadStream(localFolder + filename)
 		};
 		drive.files.create({
@@ -74,7 +74,7 @@ function upload(params) {
 			fields: 'id'
 		}, {
 			onUploadProgress: evt => {
-				const progress = (evt.bytesRead / fileSize) * 100;
+				let progress = (evt.bytesRead / fileSize) * 100;
 				readline.clearLine(process.stdout, 0)
 				readline.cursorTo(process.stdout, 0, null)
 				process.stdout.write(chalk.inverse(`${Math.round(progress)}% complete`));
@@ -93,7 +93,7 @@ function upload(params) {
 
 var getGDriveFolders = function(params) {
 	return new Promise(function(resolve, reject) {
-		var {
+		let {
 			auth,
 		} = params;
 		const drive = google.drive({
