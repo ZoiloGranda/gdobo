@@ -5,7 +5,7 @@ To avoid the unintentional lost of files, copy the directory you want to upload/
 Enable the Drive API
 https://developers.google.com/drive/api/v3/quickstart/nodejs
 
-In resulting dialog click DOWNLOAD CLIENT CONFIGURATION and save the file `credentials.json` to your working directory.
+In resulting dialog click DOWNLOAD CLIENT CONFIGURATION and save the file `credentials.json` to your application directory.
 
 ### 2
 `npm install`
@@ -25,3 +25,6 @@ If you are not already logged into your Google account, you will be prompted to 
 
 Click the Accept button.
 Copy the code you're given, paste it into the command-line prompt, and press Enter.
+
+### 6
+Verify that the file `token.json` was created on the root directory on the application and it has valid data
