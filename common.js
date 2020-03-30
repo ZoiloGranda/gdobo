@@ -32,6 +32,8 @@ var getAllGDriveFiles = function(params) {
 				data.files.map((file) => {
 					files.push(file)
 				});
+			}else if (!data.files) {
+				console.log(chalk.red(`Google Drive Folder is empty`))
 			} else {
 				data.files.map((file) => {
 					files.push(file.name)

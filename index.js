@@ -223,7 +223,6 @@ async function compareHandler(auth) {
 		if (_.isEqual(allFilesList.areInLocal, allFilesList.areInGDrive)) {
 			console.log(chalk.yellow(`The same files are in local and Google Drive`));
 		}
-		process.exit();
 	} catch (e) {
 		console.log(e);
 		process.exit();
