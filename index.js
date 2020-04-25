@@ -100,9 +100,6 @@ function checkArgs(auth, selectedOperation) {
 			case 'download':
 				downloadHandler(auth)
 				break;
-			case 'help':
-				helpHandler()
-				break;
 			default:
 				console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
 		}
@@ -239,19 +236,6 @@ async function foldersHandler(auth) {
 		auth: auth
 	});
 	console.log(allGDriveFolders);
-	process.exit()
-}
-
-function helpHandler() {
-	console.log(chalk.white(`
-${chalk.inverse('upload')}: Uploads all files from a local folder to the specified Google Drive folder. It will check the filenames and skip the ones that are already on Google Drive.
-\n${chalk.inverse('download')}: Downloads all the files from the Google Drive folder to the local folder. It checks the filenames before downloading, to avoid downloading duplicate files
-\n${chalk.inverse('compare')}: Compares files between a local folder and a Google Drive folder
-\n${chalk.inverse('sync')}: Removes the files that are on the Google Drive folder but not on local. Should be used when some files were deleted from the local folder, and they should be removed from Google Drive too. 
-\n${chalk.inverse('folders')}: Gets all the folders names and id's from Google Drive
-\n${chalk.inverse('localsync')}: Removes local files that were removed from the Google Drive folder. Should be used when there were files removed from the Google Drive folder and the local folder needs to be updated.
-\n${chalk.inverse('help')}: Shows this message
-`));
 	process.exit()
 }
 

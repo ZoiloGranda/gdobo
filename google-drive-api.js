@@ -26,7 +26,7 @@ var listFiles = function(params) {
 			fields: 'nextPageToken, files(id, name, size)',
 			pageToken: nextPageTkn,
 			//q: "mimeType='application/vnd.google-apps.folder'"
-			q: `parents='${gDriveFolder}'`
+			q: `parents='${gDriveFolder}' and mimeType != 'application/vnd.google-apps.folder'`
 		};
 		listParams.pageToken = nextPageTkn
 		drive.files.list(listParams, (err, res) => {
