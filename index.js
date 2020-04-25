@@ -21,6 +21,7 @@ const {
 	deleteLocalFile
 } = require('./common');
 const _ = require('lodash');
+const {askOperation} = require ('./interface')
 
 require('dotenv').config();
 
@@ -29,6 +30,7 @@ let gDriveFolder = process.env.FOLDER_IN_DRIVE_ID;
 var allFilesInDrive = [];
 
 async function startProcess(auth) {
+	let selectedOperation = await askOperation();
 	try {
 		await checkEnv();
 	} catch (e) {
@@ -38,7 +40,7 @@ async function startProcess(auth) {
 		console.log(e);
 		process.exit()
 	} finally {
-		checkArgs(auth)
+		checkArgs(auth, selectedOperation.option)
 	}
 }
 
@@ -76,11 +78,10 @@ function checkEnv() {
 	});
 }
 
-function checkArgs(auth) {
-	var myArgs = process.argv.slice(2);
-	if (myArgs[0]) {
-		console.log(chalk.cyan(`Operation: ${chalk.inverse(myArgs[0])}`));
-		switch (myArgs[0]) {
+function checkArgs(auth, selectedOperation) {
+	if (selectedOperation) {
+		console.log(chalk.cyan(`Operation: ${chalk.inverse(selectedOperation)}`));
+		switch (selectedOperation) {
 			case 'upload':
 				uploadHandler(auth)
 				break;
@@ -103,10 +104,10 @@ function checkArgs(auth) {
 				helpHandler()
 				break;
 			default:
-				console.log(chalk.red(`Operation ${myArgs[0]} not recognize, use <help> to get a list of possible parameters`));
+				console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
 		}
 	} else {
-		console.log(chalk.red(`No arguments provided, use <help> to get a list of possible parameters`));
+		console.log(chalk.red(`No operation provided`));
 	}
 }
 

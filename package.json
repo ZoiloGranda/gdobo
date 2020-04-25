@@ -9,9 +9,9 @@
   "dotenv": "^8.2.0",
   "express": "^4.16.4",
   "googleapis": "^39.0.0",
+  "inquirer": "^7.1.0",
   "lodash": "^4.17.15",
   "nconf": "^0.10.0",
-  "nodemon": "^1.19.4",
   "open": "^7.0.3",
   "server-destroy": "^1.0.1",
   "uuid": "^3.3.2"
@@ -21,7 +21,7 @@
   "node": ">=6.4.0"
  },
  "scripts": {
-  "start": "nodemon google-api.js"
+  "start": "node google-api.js"
  },
  "license": "Apache-2.0"
 }
