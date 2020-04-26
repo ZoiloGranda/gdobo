@@ -176,7 +176,6 @@ var download = function(params) {
 
 var deleteFileGDrive = function(params) {
 	return new Promise(function(resolve, reject) {
-		
 	let {
 		filename,
 		fileId,

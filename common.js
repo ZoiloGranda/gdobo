@@ -114,22 +114,6 @@ function sendFilesInArray(params) {
 		});
 }
 
-function askForConfirmation() {
-	return new Promise(function(resolve, reject) {
-		rl.question(`Are you sure? Y/N\n`, (userInput) => {
-			userInput = userInput.toLowerCase();
-			if (userInput.length >= 2 || userInput.length === 0 || (userInput != 'y' && userInput != 'n')) {
-				console.log(chalk.red('ERROR: Input should be one character Y=Yes, N=No'));
-				rl.close();
-				reject()
-			} else {
-				rl.close();
-				resolve(userInput)
-			}
-		});
-	});
-}
-
 function deleteLocalFile(params) {
 	return new Promise(function(resolve, reject) {
 		let{ localFolder, filename }= params
@@ -151,6 +135,5 @@ module.exports = {
 	getAllLocalFiles,
 	compareFiles,
 	sendFilesInArray,
-	askForConfirmation,
 	deleteLocalFile
 }
