@@ -14,7 +14,7 @@ In resulting dialog click DOWNLOAD CLIENT CONFIGURATION and save the file `crede
 Create `.env` based on `.env-example`
 
 ### 4
-`npm start help` To see the list of available parameters
+`npm start` To see the list of available options
 
 ### 5
 The first time you run the sample, it will prompt you to authorize access:

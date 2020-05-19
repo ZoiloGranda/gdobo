@@ -1,7 +1,7 @@
 {
  "name": "gdobo",
  "version": "1.0.0",
- "description": "A simple Node.js command-line application that makes requests to the Google Drive API.",
+ "description": "CLI tool to sync data between local files and Google Drive",
  "private": true,
  "dependencies": {
   "bluebird": "^3.7.1",
