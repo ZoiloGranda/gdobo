@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 
-function askOperation(elements) {
+function askOperation() {
  return inquirer
   .prompt([{
    type: 'list',
@@ -27,6 +27,34 @@ function askForConfirmation() {
   });
 }
 
+function askForLocalFolder(options) {
+ return inquirer
+  .prompt([{
+   type: 'list',
+   name: 'option',
+   message: 'Select LOCAL folder to operate',
+   choices: options,
+   pageSize: 10
+  }])
+  .then(answer => {
+   return answer.option
+  });
+}
+
+function askForGDriveFolder(options) {
+ return inquirer
+  .prompt([{
+   type: 'list',
+   name: 'option',
+   message: 'Select GOOGLE DRIVE folder to operate',
+   choices: options,
+   pageSize: 10
+  }])
+  .then(answer => {
+   return answer.option
+  });
+}
+
 const operations = [{
   name: 'UPLOAD - Upload all files from a local folder to the specified Google Drive folder. It will check the filenames and skip the ones that are already on Google Drive',
   value: 'upload'
@@ -40,7 +68,7 @@ const operations = [{
   value: 'compare'
  },
  {
-  name: ' REMOVE FROM GDRIVE - Remove the files that are on the Google Drive folder but not on local. Should be used when some files were deleted from the local folder, and they should be removed from Google Drive too',
+  name: 'REMOVE FROM GDRIVE - Remove the files that are on the Google Drive folder but not on local. Should be used when some files were deleted from the local folder, and they should be removed from Google Drive too',
   value: 'sync'
  },
  {
@@ -55,5 +83,7 @@ const operations = [{
 
 module.exports = {
  askOperation,
- askForConfirmation
+ askForConfirmation,
+ askForLocalFolder,
+ askForGDriveFolder
 }

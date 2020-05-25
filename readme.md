@@ -28,3 +28,6 @@ Copy the code you're given, paste it into the command-line prompt, and press Ent
 
 ### 6
 Verify that the file `token.json` was created on the root directory on the application and it has valid data
+
+### 7
+After running `npm install` use the **FOLDERS** option to get a list of folders on Google Drive, and add the id and name of the ones you need on `.env`

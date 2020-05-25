@@ -7,11 +7,8 @@ const fs = require('fs');
 const Promise = require('bluebird');
 const chalk = require('chalk');
 const readline = require('readline');
+const { askForLocalFolder, askForGDriveFolder } = require('./interface')
 
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout
-});
 
 var getAllGDriveFiles = function(params) {
 	return new Promise(async function(resolve, reject) {
@@ -127,7 +124,42 @@ function deleteLocalFile(params) {
 			}
 		})
 	});
-	
+}
+
+function getFolders() {
+	return new Promise(async function(resolve, reject) {
+		let localFolder = await askForLocalFolder(JSON.parse(process.env.LOCAL_FOLDERS))
+		let gDriveFolder = await askForGDriveFolder(JSON.parse(process.env.GDRIVE_FOLDERS))
+		let validFolders = await validateFolders({localFolder:localFolder,gDriveFolder:gDriveFolder})
+		resolve({localFolder:localFolder,gDriveFolder:gDriveFolder})
+	});
+}
+
+function validateFolders(params) {
+ return new Promise(function(resolve, reject) {
+  let {localFolder, gDriveFolder} = params
+  if (localFolder) {
+   let str = localFolder;
+   let res = str.charAt(str.length - 1);
+   if (res != '/') {
+    localFolder = localFolder + '/'
+   }
+   console.log(chalk.cyan(`local folder to operate: ${localFolder}`));
+  } else {
+   console.log(chalk.red('Error: value parameter NOT found in .env file for LOCAL_FOLDERS'));
+   reject()
+   process.end()
+  }
+  if (!fs.lstatSync(localFolder).isDirectory()) {
+   console.log(chalk.red('Error: local folder is not a valid directory'))
+   reject()
+   process.end()
+  }
+  if (gDriveFolder) {
+   console.log(chalk.cyan(`Google Drive folder to operate: ${gDriveFolder}`));
+   resolve(true);
+  }
+ });
 }
 
 module.exports = {
@@ -135,5 +167,6 @@ module.exports = {
 	getAllLocalFiles,
 	compareFiles,
 	sendFilesInArray,
-	deleteLocalFile
+	deleteLocalFile,
+	getFolders
 }

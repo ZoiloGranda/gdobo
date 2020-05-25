@@ -17,16 +17,18 @@ const {
  getAllLocalFiles,
  compareFiles,
  sendFilesInArray,
- deleteLocalFile
+ deleteLocalFile,
+ getFolders
 } = require('./common');
 const _ = require('lodash');
-const { askOperation, askForConfirmation } = require('./interface')
+const {
+ askOperation,
+ askForConfirmation,
+ askForLocalFolder,
+ askForGDriveFolder
+} = require('./interface')
 
 require('dotenv').config();
-
-let localFolder = process.env.FOLDER_TO_UPLOAD;
-let gDriveFolder = process.env.FOLDER_IN_DRIVE_ID;
-var allFilesInDrive = [];
 
 async function startProcess(auth) {
  let selectedOperation = await askOperation();
@@ -34,7 +36,7 @@ async function startProcess(auth) {
   await checkEnv();
  } catch (e) {
   if (e.code === 'ENOENT' || 'ENOTDIR') {
-   console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid local Folder'))
+   console.log(chalk.red('Error: local folder is not a valid directory'))
   }
   console.log(e);
   process.exit()
@@ -48,35 +50,14 @@ function checkEnv() {
   let path = './.env';
   if (fs.existsSync(path)) {
    console.log(chalk.cyan('.env file found'));
+   resolve();
   } else {
    console.log(chalk.red('Error: .env file NOT found'));
    reject()
   }
-  if (localFolder) {
-   let str = localFolder;
-   let res = str.charAt(str.length - 1);
-   if (res != '/') {
-    localFolder = localFolder + '/'
-   }
-   console.log(chalk.cyan(`localFolder to Upload: ${localFolder}`));
-  } else {
-   console.log(chalk.red('Error: FOLDER_TO_UPLOAD parameter NOT found in .env file'));
-   reject()
-  }
-  if (!fs.lstatSync(localFolder).isDirectory()) {
-   console.log(chalk.red('Error: FOLDER_TO_UPLOAD is not a valid localFolder'))
-   reject()
-  }
-  if (gDriveFolder) {
-   console.log(chalk.cyan(`Google Drive folder to operate: ${gDriveFolder}`));
-   resolve();
-  } else {
-   console.log(chalk.yellow('Waning: FOLDER_IN_DRIVE_ID parameter NOT found in .env file, use the folders parameter to see a list of folders. File operations will fail'));
-   resolve();
-  }
- });
+ })
 }
-
+  
 function checkArgs(auth, selectedOperation) {
  if (selectedOperation) {
   console.log(chalk.cyan(`Operation: ${chalk.inverse(selectedOperation)}`));
@@ -108,6 +89,7 @@ function checkArgs(auth, selectedOperation) {
 }
 
 async function syncHandler(auth) {
+ let {localFolder, gDriveFolder} = await getFolders();
  try {
   let allLocalFiles = await getAllLocalFiles(localFolder);
   let allGDriveFiles = await getAllGDriveFiles({
@@ -177,6 +159,7 @@ async function syncHandler(auth) {
 }
 
 async function uploadHandler(auth) {
+ let {localFolder, gDriveFolder} = await getFolders();
  let allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
   gDriveFolder: gDriveFolder
@@ -204,6 +187,7 @@ async function uploadHandler(auth) {
 }
 
 async function compareHandler(auth) {
+ let {localFolder, gDriveFolder} = await getFolders();
  try {
   let allGDriveFiles = await getAllGDriveFiles({
    auth: auth,
@@ -223,10 +207,9 @@ async function compareHandler(auth) {
  } finally {
   process.exit();
  }
-
-
 }
 
+//Gets google drive folders ids
 async function foldersHandler(auth) {
  let allGDriveFolders = await getGDriveFolders({
   auth: auth
@@ -238,6 +221,7 @@ async function foldersHandler(auth) {
 //downloads all the files from a google drive folder
 //compares files by name to avoid downloading the same file twice
 async function downloadHandler(auth) {
+ let {localFolder, gDriveFolder} = await getFolders();
  let allLocalFiles = await getAllLocalFiles(localFolder);
  let allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
@@ -297,6 +281,7 @@ async function downloadHandler(auth) {
 
 //removes local files that were removed from google drive
 async function localsyncHandler(auth) {
+ let {localFolder, gDriveFolder} = await getFolders();
  let allLocalFiles = await getAllLocalFiles(localFolder);
  let allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
