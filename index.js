@@ -18,7 +18,8 @@ const {
  compareFiles,
  sendFilesInArray,
  deleteLocalFile,
- getFolders
+ getFolders,
+ renameTempFile
 } = require('./common');
 const _ = require('lodash');
 const {
@@ -117,7 +118,6 @@ async function syncHandler(auth) {
   console.log(chalk.yellow(`Files to delete from Google Drive:`));
   filesToDelete.forEach(element => console.log(chalk.yellow(element.name)));
   let confirmation = await askForConfirmation()
-  console.log(confirmation);
   if (confirmation.answer) {
    Promise.map(filesToDelete, function(currentFile) {
      return deleteFileGDrive({
@@ -136,11 +136,8 @@ async function syncHandler(auth) {
     }, {
      concurrency: 1
     })
-    .then(function(data) {
+    .then(function() {
      console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
-     console.log({
-      data
-     });
      process.exit();
     }).catch(function(err) {
      console.log('ERROR');
@@ -258,6 +255,7 @@ async function downloadHandler(auth) {
      gDriveFolder: gDriveFolder
     })
     .then(function() {
+     renameTempFile({file:`${localFolder}${currentFile.name}`})
      console.log(chalk.green(`\nFile saved: ${localFolder}${currentFile.name}`));
     })
     .catch(function(err) {
@@ -267,11 +265,8 @@ async function downloadHandler(auth) {
   }, {
    concurrency: 1
   })
-  .then(function(data) {
+  .then(function() {
    console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-   console.log({
-    data
-   });
    process.exit();
   }).catch(function(err) {
    console.log('ERROR');
@@ -320,11 +315,8 @@ async function localsyncHandler(auth) {
   }, {
    concurrency: 1
   })
-  .then(function(data) {
+  .then(function() {
    console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
-   console.log({
-    data
-   });
    process.exit()
   }).catch(function(err) {
    console.log('ERROR');

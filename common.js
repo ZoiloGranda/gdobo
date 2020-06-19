@@ -84,31 +84,28 @@ function sendFilesInArray(params) {
 		gDriveFolder
 	} = params
 	Promise.map(filenames, function(currentFile) {
-			return upload({
-					filename: currentFile,
-					auth: auth,
-					localFolder: localFolder,
-					gDriveFolder: gDriveFolder
-				})
-				.then(function(data) {
-					console.log(chalk.green(`\nFile saved: ${currentFile} ${data.status} ${data.statusText}`));
-				})
-				.catch(function(err) {
-					console.log(chalk.red('ERROR'));
-					console.log(err);
-				});
-		}, {
-			concurrency: 1
+		return upload({
+			filename: currentFile,
+			auth: auth,
+			localFolder: localFolder,
+			gDriveFolder: gDriveFolder
 		})
 		.then(function(data) {
-			console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-			console.log({
-				data
-			});
-		}).catch(function(err) {
-			console.log('ERROR');
+			console.log(chalk.green(`\nFile saved: ${currentFile} ${data.status} ${data.statusText}`));
+		})
+		.catch(function(err) {
+			console.log(chalk.red('ERROR'));
 			console.log(err);
 		});
+	}, {
+		concurrency: 1
+	})
+	.then(function() {
+		console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
+	}).catch(function(err) {
+		console.log('ERROR');
+		console.log(err);
+	});
 }
 
 function deleteLocalFile(params) {
@@ -136,30 +133,37 @@ function getFolders() {
 }
 
 function validateFolders(params) {
- return new Promise(function(resolve, reject) {
-  let {localFolder, gDriveFolder} = params
-  if (localFolder) {
-   let str = localFolder;
-   let res = str.charAt(str.length - 1);
-   if (res != '/') {
-    localFolder = localFolder + '/'
-   }
-   console.log(chalk.cyan(`local folder to operate: ${localFolder}`));
-  } else {
-   console.log(chalk.red('Error: value parameter NOT found in .env file for LOCAL_FOLDERS'));
-   reject()
-   process.end()
-  }
-  if (!fs.lstatSync(localFolder).isDirectory()) {
-   console.log(chalk.red('Error: local folder is not a valid directory'))
-   reject()
-   process.end()
-  }
-  if (gDriveFolder) {
-   console.log(chalk.cyan(`Google Drive folder to operate: ${gDriveFolder}`));
-   resolve(true);
-  }
- });
+	return new Promise(function(resolve, reject) {
+		let {localFolder, gDriveFolder} = params
+		if (localFolder) {
+			let str = localFolder;
+			let res = str.charAt(str.length - 1);
+			if (res != '/') {
+				localFolder = localFolder + '/'
+			}
+			console.log(chalk.cyan(`local folder to operate: ${localFolder}`));
+		} else {
+			console.log(chalk.red('Error: value parameter NOT found in .env file for LOCAL_FOLDERS'));
+			reject()
+			process.end()
+		}
+		if (!fs.lstatSync(localFolder).isDirectory()) {
+			console.log(chalk.red('Error: local folder is not a valid directory'))
+			reject()
+			process.end()
+		}
+		if (gDriveFolder) {
+			console.log(chalk.cyan(`Google Drive folder to operate: ${gDriveFolder}`));
+			resolve(true);
+		}
+	});
+}
+
+function renameTempFile(params) {
+	let {file} = params;
+	fs.rename(`${file}-temp`, file, (err) => {
+		if (err) throw err;
+	});
 }
 
 module.exports = {
@@ -168,5 +172,6 @@ module.exports = {
 	compareFiles,
 	sendFilesInArray,
 	deleteLocalFile,
-	getFolders
+	getFolders,
+	renameTempFile
 }

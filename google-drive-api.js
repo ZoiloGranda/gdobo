@@ -134,8 +134,8 @@ var download = function(params) {
 			filename,
 			fileSize
 		} = params;
-		var dest = fs.createWriteStream(`${localFolder}${filename}`);
-		console.log(`----------------------\nCreated File: ${localFolder}${filename}`);
+		var dest = fs.createWriteStream(`${localFolder}${filename}-temp`);
+		console.log(`----------------------\nCreated File: ${localFolder}${filename}-temp`);
 		const drive = google.drive({
 			version: 'v3',
 			auth
@@ -190,8 +190,6 @@ var deleteFileGDrive = function(params) {
 	drive.files.delete({
 		fileId: fileId
 	}, (err, res) => {
-		console.log({res});
-		console.log({err});
 		if (err) {
 			console.error('The API returned an error.');
 			reject(err)
