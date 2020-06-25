@@ -26,7 +26,8 @@ const {
  askOperation,
  askForConfirmation,
  askForLocalFolder,
- askForGDriveFolder
+ askForGDriveFolder,
+ selectFiles
 } = require('./interface')
 
 require('dotenv').config();
@@ -234,11 +235,14 @@ async function downloadHandler(auth) {
   console.log(chalk.yellow(`Nothing to download, folders are updated`));
   process.exit()
  }
+ let selectedFiles = await selectFiles({
+  choices:differentFiles.areInGDrive,
+  operation:'download'
+ })
  let filesToDownload = _.filter(allGDriveFiles, function(currentFile) {
-  for (let element of differentFiles.areInGDrive) {
+  for (let element of selectedFiles) {
    if (currentFile.name === element) {
     return true
-    break
    }
   }
  });
