@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const {
  google
 } = require('googleapis');
@@ -29,8 +30,8 @@ const {
  askForGDriveFolder,
  selectFiles
 } = require('./interface')
-
-require('dotenv').config();
+const envPath = path.join(__dirname,'/.env');
+require('dotenv').config({path: envPath});
 
 async function startProcess(auth) {
  let selectedOperation = await askOperation();
@@ -49,8 +50,7 @@ async function startProcess(auth) {
 
 function checkEnv() {
  return new Promise(function(resolve, reject) {
-  let path = './.env';
-  if (fs.existsSync(path)) {
+  if (fs.existsSync(envPath)) {
    console.log(chalk.cyan('.env file found'));
    resolve();
   } else {
