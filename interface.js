@@ -55,24 +55,48 @@ function askForGDriveFolder(options) {
  });
 }
 
-function selectFiles({choices, operation}){
+function selectFiles({ choices, operation }) {
  return inquirer
- .prompt([
-  {
-   type: 'checkbox',
-   message: `Select files to ${operation}`,
-   name: 'files',
-   choices: choices,
-   validate: function(answer) {
-    if (answer.length < 1) {
-     return 'You must choose at least one file.';
-    }
-    return true;
+ .prompt([{
+  type: 'checkbox',
+  message: `Select files to ${operation}`,
+  name: 'files',
+  choices: choices,
+  validate: function(answer) {
+   if (answer.length < 1) {
+    return 'You must choose at least one file.';
    }
+   return true;
   }
- ])
+ }])
  .then(answers => {
   return [...answers.files]
+ });
+}
+
+function askLocalFolderPath() {
+ return inquirer
+ .prompt([{
+  type: 'input',
+  name: 'localFolderPath',
+  message: "Drag your local folder here"
+ }])
+ .then(answer => {
+  return answer.localFolderPath.slice(1,-1)
+ });
+}
+
+function selectGDriveFolder(options) {
+ return inquirer
+ .prompt([{
+  type: 'list',
+  name: 'option',
+  message: 'Select GOOGLE DRIVE folder to add on .env file',
+  choices: options,
+  pageSize: 10
+ }])
+ .then(answer => {
+  return answer.option
  });
 }
 
@@ -100,6 +124,10 @@ const operations = [{
  name: 'FOLDERS - Get all the folders names and id\'s from Google Drive',
  value: 'folders'
 },
+{
+ name: 'ENV - Generate .env file. If this is the first time running the app, select this',
+ value: 'generateEnv'
+}
 ]
 
 module.exports = {
@@ -107,5 +135,7 @@ module.exports = {
  askForConfirmation,
  askForLocalFolder,
  askForGDriveFolder,
- selectFiles
+ selectFiles,
+ askLocalFolderPath,
+ selectGDriveFolder
 }

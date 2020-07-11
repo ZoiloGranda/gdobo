@@ -28,7 +28,9 @@ const {
  askForConfirmation,
  askForLocalFolder,
  askForGDriveFolder,
- selectFiles
+ selectFiles,
+ askLocalFolderPath,
+ selectGDriveFolder
 } = require('./interface')
 const envPath = path.join(__dirname,'/.env');
 require('dotenv').config({path: envPath});
@@ -36,7 +38,9 @@ require('dotenv').config({path: envPath});
 async function startProcess(auth) {
  let selectedOperation = await askOperation();
  try {
-  await checkEnv();
+  if (selectedOperation.option!== 'generateEnv') {
+   await checkEnv();
+  }
  } catch (e) {
   if (e.code === 'ENOENT' || 'ENOTDIR') {
    console.log(chalk.red('Error: local folder is not a valid directory'))
@@ -55,35 +59,38 @@ function checkEnv() {
    resolve();
   } else {
    console.log(chalk.red('Error: .env file NOT found'));
-   reject()
+   reject(new Error('.env file NOT found'))
   }
  })
 }
-  
+
 function checkArgs(auth, selectedOperation) {
  if (selectedOperation) {
   console.log(chalk.cyan(`Operation: ${chalk.inverse(selectedOperation)}`));
   switch (selectedOperation) {
    case 'upload':
-    uploadHandler(auth)
-    break;
+   uploadHandler(auth)
+   break;
    case 'compare':
-    compareHandler(auth)
-    break;
+   compareHandler(auth)
+   break;
    case 'sync':
-    syncHandler(auth)
-    break;
+   syncHandler(auth)
+   break;
    case 'localsync':
-    localsyncHandler(auth)
-    break;
+   localsyncHandler(auth)
+   break;
    case 'folders':
-    foldersHandler(auth)
-    break;
+   foldersHandler(auth)
+   break;
    case 'download':
-    downloadHandler(auth)
-    break;
+   downloadHandler(auth)
+   break;
+   case 'generateEnv':
+   generateEnvHandler({auth})
+   break;
    default:
-    console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
+   console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
   }
  } else {
   console.log(chalk.red(`No operation provided`));
@@ -121,29 +128,29 @@ async function syncHandler(auth) {
   let confirmation = await askForConfirmation()
   if (confirmation.answer) {
    Promise.map(filesToDelete, function(currentFile) {
-     return deleteFileGDrive({
-       filename: currentFile.name,
-       fileId: currentFile.id,
-       auth: auth,
-       gDriveFolder: gDriveFolder
-      })
-      .then(function(deletedFile) {
-       console.log(chalk.green(`\nFile deleted successfully: ${deletedFile}`));
-      })
-      .catch(function(err) {
-       console.log(chalk.red('ERROR'));
-       console.log(err);
-      });
-    }, {
-     concurrency: 1
+    return deleteFileGDrive({
+     filename: currentFile.name,
+     fileId: currentFile.id,
+     auth: auth,
+     gDriveFolder: gDriveFolder
     })
-    .then(function() {
-     console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
-     process.exit();
-    }).catch(function(err) {
-     console.log('ERROR');
+    .then(function(deletedFile) {
+     console.log(chalk.green(`\nFile deleted successfully: ${deletedFile}`));
+    })
+    .catch(function(err) {
+     console.log(chalk.red('ERROR'));
      console.log(err);
     });
+   }, {
+    concurrency: 1
+   })
+   .then(function() {
+    console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
+    process.exit();
+   }).catch(function(err) {
+    console.log('ERROR');
+    console.log(err);
+   });
   } else {
    console.log(chalk.cyan(`Nothing to do here`));
    process.exit()
@@ -152,7 +159,7 @@ async function syncHandler(auth) {
   console.log(e);
   process.exit()
  } finally {
-
+  
  }
 }
 
@@ -181,7 +188,7 @@ async function uploadHandler(auth) {
  } else {
   console.log(chalk.yellow(`Nothing to Upload`));
  }
-
+ 
 }
 
 async function compareHandler(auth) {
@@ -250,32 +257,32 @@ async function downloadHandler(auth) {
   filesToDownload
  });
  Promise.map(filesToDownload, function(currentFile) {
-   return download({
-     filename: currentFile.name,
-     fileId: currentFile.id,
-     fileSize: currentFile.size,
-     auth: auth,
-     localFolder: localFolder,
-     gDriveFolder: gDriveFolder
-    })
-    .then(function() {
-     renameTempFile({file:`${localFolder}${currentFile.name}`})
-     console.log(chalk.green(`\nFile saved: ${localFolder}${currentFile.name}`));
-    })
-    .catch(function(err) {
-     console.log(chalk.red('ERROR'));
-     console.log(err);
-    });
-  }, {
-   concurrency: 1
+  return download({
+   filename: currentFile.name,
+   fileId: currentFile.id,
+   fileSize: currentFile.size,
+   auth: auth,
+   localFolder: localFolder,
+   gDriveFolder: gDriveFolder
   })
   .then(function() {
-   console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-   process.exit();
-  }).catch(function(err) {
-   console.log('ERROR');
+   renameTempFile({file:`${localFolder}${currentFile.name}`})
+   console.log(chalk.green(`\nFile saved: ${localFolder}${currentFile.name}`));
+  })
+  .catch(function(err) {
+   console.log(chalk.red('ERROR'));
    console.log(err);
   });
+ }, {
+  concurrency: 1
+ })
+ .then(function() {
+  console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
+  process.exit();
+ }).catch(function(err) {
+  console.log('ERROR');
+  console.log(err);
+ });
 }
 
 //removes local files that were removed from google drive
@@ -298,35 +305,51 @@ async function localsyncHandler(auth) {
  console.log(chalk.yellow(`Files to delete from local folder:`));
  filesToDelete.forEach(element => console.log(chalk.yellow(element)));
  let confirmation = await askForConfirmation()
-	console.log(confirmation);
+ console.log(confirmation);
  if (!confirmation.answer) {
   console.log(chalk.yellow(`Exiting...`));
   process.exit()
  }
  // localFolder, filename
  Promise.map(filesToDelete, function(currentFile) {
-   return deleteLocalFile({
-     filename: currentFile,
-     localFolder: localFolder,
-    })
-    .then(function() {
-     console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
-    })
-    .catch(function(err) {
-     console.log(chalk.red('ERROR'));
-     console.log(err);
-    });
-  }, {
-   concurrency: 1
+  return deleteLocalFile({
+   filename: currentFile,
+   localFolder: localFolder,
   })
   .then(function() {
-   console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
-   process.exit()
-  }).catch(function(err) {
-   console.log('ERROR');
+   console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
+  })
+  .catch(function(err) {
+   console.log(chalk.red('ERROR'));
    console.log(err);
   });
+ }, {
+  concurrency: 1
+ })
+ .then(function() {
+  console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
+  process.exit()
+ }).catch(function(err) {
+  console.log('ERROR');
+  console.log(err);
+ });
+}
 
+async function generateEnvHandler({auth}) {
+ let localFolderPath = await askLocalFolderPath()
+ let localFolderName = localFolderPath.substring(localFolderPath.lastIndexOf('/') + 1)
+ let allGDriveFolders = await getGDriveFolders({
+  auth: auth
+ });
+ allGDriveFolders.filter(current=>current.value=current.id)
+ let googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
+ let googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
+ let dataToWrite = `LOCAL_FOLDERS=[{"name":"${localFolderName}","value":"${localFolderPath}/"}]
+ GDRIVE_FOLDERS=[{"name":"${googleDriveFolderData.name}","value":"${googleDriveFolderData.id}"}]`
+ fs.writeFile('.env', dataToWrite, function (err) {
+  if (err) return console.log(err);
+  console.log(chalk.green('.env file created successfully'));
+ });
 }
 
 module.exports = {
