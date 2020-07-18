@@ -300,11 +300,14 @@ async function localsyncHandler(auth) {
   allLocalFiles: allLocalFiles,
   allGDriveFiles: allGDriveFiles
  })
- let filesToDelete = differentFiles.areInLocal;
- if (filesToDelete.length === 0) {
+ if (differentFiles.areInLocal.length === 0) {
   console.log(chalk.yellow(`Nothing to delete, local folder is updated`));
   process.exit()
  }
+ let filesToDelete = await selectFiles({
+   choices: differentFiles.areInLocal,
+   operation: 'DELETE' 
+  })
  console.log(chalk.yellow(`Files to delete from local folder:`));
  filesToDelete.forEach(element => console.log(chalk.yellow(element)));
  let confirmation = await askForConfirmation()

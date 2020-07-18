@@ -116,7 +116,7 @@ function deleteLocalFile(params) {
 				console.log(chalk.red(`Could not delete: ${filename}`));
 				reject(err)
 			} else {
-				console.log(chalk.cyan(`Successfully deleted: ${filename}`));
+				// console.log(chalk.cyan(`Successfully deleted: ${filename}`));
 				resolve();
 			}
 		})
