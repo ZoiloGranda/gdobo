@@ -118,16 +118,27 @@ async function syncHandler(auth) {
   let filesToDelete = _.filter(allGDriveFiles, function(currentFile) {
    for (let element of differentFiles.areInGDrive) {
     if (currentFile.name === element) {
+     currentFile.value = currentFile.id
      return true
      break
     }
    }
   });
   console.log(chalk.yellow(`Files to delete from Google Drive:`));
-  filesToDelete.forEach(element => console.log(chalk.yellow(element.name)));
+  console.log(filesToDelete);
+  let confirmedFilesToDelete = await selectFiles({
+   choices: filesToDelete,
+   operation: 'DELETE'
+  })
+  let filesWithData = [];
+  confirmedFilesToDelete.forEach((item) => {
+   let found = filesToDelete.find(element => element.id === item);
+   filesWithData.push(found)
+  });
+  filesWithData.forEach(element => console.log(chalk.yellow(element.name)));
   let confirmation = await askForConfirmation()
   if (confirmation.answer) {
-   Promise.map(filesToDelete, function(currentFile) {
+   Promise.map(filesWithData, function(currentFile) {
      return deleteFileGDrive({
        filename: currentFile.name,
        fileId: currentFile.id,
