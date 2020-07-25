@@ -1,12 +1,18 @@
 const fs = require('fs');
 const path = require('path');
-const {
- google
-} = require('googleapis');
 const Promise = require('bluebird');
 const readline = require('readline');
 const chalk = require('chalk');
-const { uploadHandler, compareHandler, syncHandler } = require('./operations')
+const _ = require('lodash');
+const {
+ google
+} = require('googleapis');
+const { 
+ uploadHandler,
+ compareHandler,
+ syncHandler,
+ localsyncHandler
+} = require('./operations')
 const {
  listFiles,
  upload,
@@ -23,7 +29,6 @@ const {
  getFolders,
  renameTempFile
 } = require('./common');
-const _ = require('lodash');
 const {
  askOperation,
  askForConfirmation,
@@ -163,59 +168,6 @@ async function downloadHandler(auth) {
   .then(function() {
    console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
    process.exit();
-  }).catch(function(err) {
-   console.log('ERROR');
-   console.log(err);
-  });
-}
-
-//removes local files that were removed from google drive
-async function localsyncHandler(auth) {
- let { localFolder, gDriveFolder } = await getFolders();
- let allLocalFiles = await getAllLocalFiles(localFolder);
- let allGDriveFiles = await getAllGDriveFiles({
-  auth: auth,
-  gDriveFolder: gDriveFolder
- })
- let differentFiles = await compareFiles({
-  allLocalFiles: allLocalFiles,
-  allGDriveFiles: allGDriveFiles
- })
- if (differentFiles.areInLocal.length === 0) {
-  console.log(chalk.yellow(`Nothing to delete, local folder is updated`));
-  process.exit()
- }
- let filesToDelete = await selectFiles({
-  choices: differentFiles.areInLocal,
-  operation: 'DELETE'
- })
- console.log(chalk.yellow(`Files to delete from local folder:`));
- filesToDelete.forEach(element => console.log(chalk.yellow(element)));
- let confirmation = await askForConfirmation()
- console.log(confirmation);
- if (!confirmation.answer) {
-  console.log(chalk.yellow(`Exiting...`));
-  process.exit()
- }
- // localFolder, filename
- Promise.map(filesToDelete, function(currentFile) {
-   return deleteLocalFile({
-     filename: currentFile,
-     localFolder: localFolder,
-    })
-    .then(function() {
-     console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
-    })
-    .catch(function(err) {
-     console.log(chalk.red('ERROR'));
-     console.log(err);
-    });
-  }, {
-   concurrency: 1
-  })
-  .then(function() {
-   console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
-   process.exit()
   }).catch(function(err) {
    console.log('ERROR');
    console.log(err);
