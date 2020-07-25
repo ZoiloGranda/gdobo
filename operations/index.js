@@ -1,5 +1,5 @@
 module.exports = {
   uploadHandler: require('./upload-handler'),
-  segundo: 'jai'
+  compareHandler: require('./compare-handler'),
 // , signOut: require('./signOut')
 };

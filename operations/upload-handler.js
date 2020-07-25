@@ -3,17 +3,10 @@ const {
  getAllLocalFiles,
  compareFiles,
  sendFilesInArray,
- deleteLocalFile,
- getFolders,
- renameTempFile
+ getFolders
 } = require('../common');
 const {
- askOperation,
- askForConfirmation,
- askForLocalFolder,
- askForGDriveFolder,
  selectFiles,
- askLocalFolderPath,
  selectGDriveFolder
 } = require('../interface')
 
