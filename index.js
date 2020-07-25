@@ -6,6 +6,7 @@ const {
 const Promise = require('bluebird');
 const readline = require('readline');
 const chalk = require('chalk');
+const { uploadHandler } = require('./operations')
 const {
  listFiles,
  upload,
@@ -174,36 +175,7 @@ async function syncHandler(auth) {
  }
 }
 
-async function uploadHandler(auth) {
- let { localFolder, gDriveFolder } = await getFolders();
- let allGDriveFiles = await getAllGDriveFiles({
-  auth: auth,
-  gDriveFolder: gDriveFolder
- })
- let allLocalFiles = await getAllLocalFiles(localFolder);
- let differentFiles = await compareFiles({
-  allLocalFiles: allLocalFiles,
-  allGDriveFiles: allGDriveFiles
- })
- let filesToUpload = differentFiles.areInLocal;
- console.log({
-  filesToUpload
- });
- if (filesToUpload.length === 0) {
-  console.log(chalk.yellow(`Nothing to Upload`));
-  return
- }
- let selectedFiles = await selectFiles({
-  choices: filesToUpload,
-  operation: 'upload'
- })
- sendFilesInArray({
-  auth: auth,
-  filenames: selectedFiles,
-  localFolder: localFolder,
-  gDriveFolder: gDriveFolder
- })
-}
+
 
 async function compareHandler(auth) {
  let { localFolder, gDriveFolder } = await getFolders();
@@ -316,9 +288,9 @@ async function localsyncHandler(auth) {
   process.exit()
  }
  let filesToDelete = await selectFiles({
-   choices: differentFiles.areInLocal,
-   operation: 'DELETE' 
-  })
+  choices: differentFiles.areInLocal,
+  operation: 'DELETE'
+ })
  console.log(chalk.yellow(`Files to delete from local folder:`));
  filesToDelete.forEach(element => console.log(chalk.yellow(element)));
  let confirmation = await askForConfirmation()
