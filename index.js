@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
-const readline = require('readline');
 const chalk = require('chalk');
 const _ = require('lodash');
 const {
@@ -17,29 +16,7 @@ const {
  generateEnvHandler
 } = require('./operations')
 const {
- listFiles,
- upload,
- getGDriveFolders,
- download,
- deleteFileGDrive
-} = require('./google-drive-api');
-const {
- getAllGDriveFiles,
- getAllLocalFiles,
- compareFiles,
- sendFilesInArray,
- deleteLocalFile,
- getFolders,
- renameTempFile
-} = require('./common');
-const {
- askOperation,
- askForConfirmation,
- askForLocalFolder,
- askForGDriveFolder,
- selectFiles,
- askLocalFolderPath,
- selectGDriveFolder
+ askOperation
 } = require('./interface')
 const envPath = path.join(__dirname, '/.env');
 require('dotenv').config({ path: envPath });
