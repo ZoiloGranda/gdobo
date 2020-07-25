@@ -1,10 +1,11 @@
+const _ = require('lodash');
+const chalk = require('chalk');
 const {
  getAllGDriveFiles,
  getAllLocalFiles,
  compareFiles,
  getFolders
 } = require('../common');
-const _ = require('lodash');
 
 module.exports = async function compareHandler(auth) {
  let { localFolder, gDriveFolder } = await getFolders();
