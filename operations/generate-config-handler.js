@@ -12,17 +12,26 @@ const {
 
 module.exports = async function generateConfigHandler({ auth }) {
  let localFolderPath = await askLocalFolderPath()
- let localFolderName = localFolderPath.substring(localFolderPath.lastIndexOf('/') + 1)
+ let localFolderName = path.basename(localFolderPath);
+ console.log({localFolderName});
  let allGDriveFolders = await getGDriveFolders({
   auth: auth
  });
  allGDriveFolders.filter(current => current.value = current.id)
  let googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
  let googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
- let dataToWrite = `LOCAL_FOLDERS=[{"name":"${localFolderName}","value":"${localFolderPath}/"}]
- GDRIVE_FOLDERS=[{"name":"${googleDriveFolderData.name}","value":"${googleDriveFolderData.id}"}]`
- fs.writeFile('.env', dataToWrite, function(err) {
+ let dataToWrite = {
+  LOCAL_FOLDERS:[{
+   name:localFolderName,
+   value:localFolderPath+'/'
+  }],
+  GDRIVE_FOLDERS:[{
+   name:googleDriveFolderData.name,
+   value:googleDriveFolderData.id
+  }]
+ }
+ fs.writeFile('config.json', JSON.stringify(dataToWrite, null, 1), function(err) {
   if (err) return console.log(err);
-  console.log(chalk.green('.env file created successfully'));
+  console.log(chalk.green('config.json file created successfully'));
  });
 }

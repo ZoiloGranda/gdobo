@@ -22,7 +22,6 @@ const {
 const configPath = path.join(__dirname, '/config.json');
 
 async function startProcess(auth) {
- console.log(process.env.LOCAL_FOLDERS);
  let selectedOperation = await askOperation();
  try {
   if (selectedOperation.option !== 'generateConfig') {
