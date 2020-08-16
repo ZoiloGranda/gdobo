@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const chalk = require('chalk');
 const readline = require('readline');
 const { askForLocalFolder, askForGDriveFolder } = require('./interface')
-
+const config = require('./config.json')
 
 var getAllGDriveFiles = function(params) {
 	return new Promise(async function(resolve, reject) {
@@ -125,8 +125,8 @@ function deleteLocalFile(params) {
 
 function getFolders() {
 	return new Promise(async function(resolve, reject) {
-		let localFolder = await askForLocalFolder(JSON.parse(process.env.LOCAL_FOLDERS))
-		let gDriveFolder = await askForGDriveFolder(JSON.parse(process.env.GDRIVE_FOLDERS))
+		let localFolder = await askForLocalFolder(config.LOCAL_FOLDERS)
+		let gDriveFolder = await askForGDriveFolder(config.GDRIVE_FOLDERS)
 		let validFolders = await validateFolders({localFolder:localFolder,gDriveFolder:gDriveFolder})
 		resolve({localFolder:localFolder,gDriveFolder:gDriveFolder})
 	});
@@ -143,7 +143,7 @@ function validateFolders(params) {
 			}
 			console.log(chalk.cyan(`local folder to operate: ${localFolder}`));
 		} else {
-			console.log(chalk.red('Error: value parameter NOT found in .env file for LOCAL_FOLDERS'));
+			console.log(chalk.red('Error: parameter NOT found in config.json for LOCAL_FOLDERS'));
 			reject()
 			process.end()
 		}

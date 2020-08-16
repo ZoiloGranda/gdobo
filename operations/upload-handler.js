@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 const {
  getAllGDriveFiles,
  getAllLocalFiles,
@@ -9,6 +10,7 @@ const {
  selectFiles,
  selectGDriveFolder
 } = require('../interface')
+const config = require('../config.json')
 
 module.exports = async function uploadHandler(auth) {
  let { localFolder, gDriveFolder } = await getFolders();
