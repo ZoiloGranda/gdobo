@@ -186,7 +186,6 @@ var deleteFileGDrive = function(params) {
 		version: 'v3',
 		auth: auth
 	})
-	console.log(drive.files.delete);
 	drive.files.delete({
 		fileId: fileId
 	}, (err, res) => {
