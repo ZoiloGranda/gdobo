@@ -10,7 +10,7 @@ const {
  selectGDriveFolder
 } = require('../interface')
 
-module.exports = async function generateEnvHandler({ auth }) {
+module.exports = async function generateConfigHandler({ auth }) {
  let localFolderPath = await askLocalFolderPath()
  let localFolderName = localFolderPath.substring(localFolderPath.lastIndexOf('/') + 1)
  let allGDriveFolders = await getGDriveFolders({

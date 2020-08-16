@@ -102,7 +102,7 @@ function selectGDriveFolder(options) {
 
 const operations = [{
   name: 'ENV - Generate .env file. If this is the first time running the app, select this',
-  value: 'generateEnv'
+  value: 'generateConfig'
  },
  {
  name: 'UPLOAD - Upload all files from a local folder to the specified Google Drive folder. It will check the filenames and skip the ones that are already on Google Drive',
@@ -127,6 +127,10 @@ const operations = [{
 {
  name: 'FOLDERS - Get all the folders names and id\'s from Google Drive',
  value: 'folders'
+},
+{
+ name: 'MODIFY ENV - Modify an existing .env file',
+ value: 'modifyConfig'
 }
 ]
 

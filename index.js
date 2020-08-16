@@ -6,25 +6,26 @@ const _ = require('lodash');
 const {
  google
 } = require('googleapis');
-const { 
+const {
  uploadHandler,
  compareHandler,
  syncHandler,
  localsyncHandler,
  foldersHandler,
  downloadHandler,
- generateEnvHandler
+ generateConfigHandler,
+ modifyConfigHandler
 } = require('./operations')
 const {
  askOperation
 } = require('./interface')
-const envPath = path.join(__dirname, '/.env');
-require('dotenv').config({ path: envPath });
+const configPath = path.join(__dirname, '/config.json');
 
 async function startProcess(auth) {
+ console.log(process.env.LOCAL_FOLDERS);
  let selectedOperation = await askOperation();
  try {
-  if (selectedOperation.option !== 'generateEnv') {
+  if (selectedOperation.option !== 'generateConfig') {
    await checkEnv();
   }
  } catch (e) {
@@ -38,9 +39,9 @@ async function startProcess(auth) {
  }
 }
 
-function checkEnv() {
+function checkConfig() {
  return new Promise(function(resolve, reject) {
-  if (fs.existsSync(envPath)) {
+  if (fs.existsSync(configPath)) {
    console.log(chalk.cyan('.env file found'));
    resolve();
   } else {
@@ -72,8 +73,11 @@ function checkArgs(auth, selectedOperation) {
    case 'download':
     downloadHandler(auth)
     break;
-   case 'generateEnv':
-    generateEnvHandler({ auth })
+   case 'generateConfig':
+    generateConfigHandler({ auth })
+    break;
+   case 'modifyConfig':
+    modifyConfigHandler({ auth })
     break;
    default:
     console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
