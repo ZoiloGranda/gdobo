@@ -40,6 +40,6 @@ module.exports = async function modifyConfigHandler({ auth }) {
  console.log(dataToWrite);
  fs.writeFile('config.json', JSON.stringify(dataToWrite, null, 1), function(err) {
   if (err) return console.log(err);
-  console.log(chalk.green('config.json file created successfully'));
+  console.log(chalk.green('config.json file modified successfully'));
  });
 }
