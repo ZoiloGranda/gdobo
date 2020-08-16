@@ -11,8 +11,35 @@ const {
 } = require('../interface')
 
 module.exports = async function modifyConfigHandler({ auth }) {
- fs.readFile('folders.json', 'utf8', function(err, contents) {
-     console.log(contents);
-     console.log(JSON.parse(contents));
+ const config = require('../config.json');
+ let localFolderPath = await askLocalFolderPath()
+ let localFolderName = path.basename(localFolderPath);
+ console.log({ localFolderName });
+ let allGDriveFolders = await getGDriveFolders({
+  auth: auth
+ });
+ allGDriveFolders.filter(current => current.value = current.id)
+ let googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
+ let googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
+ let dataToWrite = {
+  LOCAL_FOLDERS: [
+   ...config.LOCAL_FOLDERS,
+   {
+    name: localFolderName,
+    value: localFolderPath + '/'
+   }
+  ],
+  GDRIVE_FOLDERS: [
+   ...config.GDRIVE_FOLDERS,
+   {
+    name: googleDriveFolderData.name,
+    value: googleDriveFolderData.id
+   }
+  ]
+ }
+ console.log(dataToWrite);
+ fs.writeFile('config.json', JSON.stringify(dataToWrite, null, 1), function(err) {
+  if (err) return console.log(err);
+  console.log(chalk.green('config.json file created successfully'));
  });
 }

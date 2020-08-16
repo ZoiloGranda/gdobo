@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const chalk = require('chalk');
 const readline = require('readline');
 const { askForLocalFolder, askForGDriveFolder } = require('./interface')
-const config = require('./config.json')
+
 
 var getAllGDriveFiles = function(params) {
 	return new Promise(async function(resolve, reject) {
@@ -124,6 +124,7 @@ function deleteLocalFile(params) {
 }
 
 function getFolders() {
+	const config = require('./config.json')
 	return new Promise(async function(resolve, reject) {
 		let localFolder = await askForLocalFolder(config.LOCAL_FOLDERS)
 		let gDriveFolder = await askForGDriveFolder(config.GDRIVE_FOLDERS)

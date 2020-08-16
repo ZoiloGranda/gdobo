@@ -91,7 +91,7 @@ function selectGDriveFolder(options) {
  .prompt([{
   type: 'list',
   name: 'option',
-  message: 'Select GOOGLE DRIVE folder to add on .env file',
+  message: 'Select GOOGLE DRIVE folder to add on config file',
   choices: options,
   pageSize: 10
  }])
@@ -101,7 +101,7 @@ function selectGDriveFolder(options) {
 }
 
 const operations = [{
-  name: 'ENV - Generate .env file. If this is the first time running the app, select this',
+  name: 'CONFIG - Generate config.json file. If this is the first time running the app, select this',
   value: 'generateConfig'
  },
  {
@@ -129,7 +129,7 @@ const operations = [{
  value: 'folders'
 },
 {
- name: 'MODIFY ENV - Modify an existing .env file',
+ name: 'MODIFY CONFIG - Modify an existing config.json file',
  value: 'modifyConfig'
 }
 ]
