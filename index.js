@@ -25,12 +25,9 @@ async function startProcess(auth) {
  let selectedOperation = await askOperation();
  try {
   if (selectedOperation.option !== 'generateConfig') {
-   await checkEnv();
+   await checkConfig();
   }
  } catch (e) {
-  if (e.code === 'ENOENT' || 'ENOTDIR') {
-   console.log(chalk.red('Error: local folder is not a valid directory'))
-  }
   console.log(e);
   process.exit()
  } finally {
@@ -41,11 +38,11 @@ async function startProcess(auth) {
 function checkConfig() {
  return new Promise(function(resolve, reject) {
   if (fs.existsSync(configPath)) {
-   console.log(chalk.cyan('.env file found'));
+   console.log(chalk.cyan('config.json file found'));
    resolve();
   } else {
-   console.log(chalk.red('Error: .env file NOT found'));
-   reject(new Error('.env file NOT found'))
+   console.log(chalk.red('Error: config.json file NOT found'));
+   reject(new Error('config.json file NOT found'))
   }
  })
 }
