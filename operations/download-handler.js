@@ -72,9 +72,9 @@ module.exports = async function downloadHandler(auth) {
   })
   .then(function() {
    console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-   process.exit();
+   console.log(chalk.black.bgWhite(`Operation completed`));
   }).catch(function(err) {
-   console.log('ERROR');
    console.log(err);
+   process.exit()
   });
 }

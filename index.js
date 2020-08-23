@@ -47,39 +47,46 @@ function checkConfig() {
  })
 }
 
-function checkArgs(auth, selectedOperation) {
- if (selectedOperation) {
-  console.log(chalk.cyan(`Operation: ${chalk.inverse(selectedOperation)}`));
-  switch (selectedOperation) {
-   case 'upload':
-    uploadHandler(auth)
+async function checkArgs(auth, selectedOperation) {
+ console.log(chalk.cyan(`Operation: ${chalk.inverse(selectedOperation)}`));
+ try {
+  if (selectedOperation) {
+   switch (selectedOperation) {
+    case 'upload':
+    await uploadHandler(auth)
     break;
-   case 'compare':
-    compareHandler(auth)
+    case 'compare':
+    await compareHandler(auth)
     break;
-   case 'sync':
-    syncHandler(auth)
+    case 'sync':
+    await syncHandler(auth)
     break;
-   case 'localsync':
-    localsyncHandler(auth)
+    case 'localsync':
+    await localsyncHandler(auth)
     break;
-   case 'folders':
-    foldersHandler(auth)
+    case 'folders':
+    await foldersHandler(auth)
     break;
-   case 'download':
-    downloadHandler(auth)
+    case 'download':
+    await downloadHandler(auth)
     break;
-   case 'generateConfig':
-    generateConfigHandler({ auth })
+    case 'generateConfig':
+    await generateConfigHandler({ auth })
     break;
-   case 'modifyConfig':
-    modifyConfigHandler({ auth })
+    case 'modifyConfig':
+    await modifyConfigHandler({ auth })
     break;
-   default:
+    default:
     console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
+   }
+  } else {
+   console.log(chalk.red(`No operation provided`));
   }
- } else {
-  console.log(chalk.red(`No operation provided`));
+ } catch (e) {
+  console.log(e);
+  process.exit()
+ } finally {
+  startProcess(auth)
  }
 }
 

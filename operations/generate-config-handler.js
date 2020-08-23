@@ -1,5 +1,5 @@
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs').promises;
 const chalk = require('chalk');
 const _ = require('lodash');
 const {
@@ -30,8 +30,13 @@ module.exports = async function generateConfigHandler({ auth }) {
    value:googleDriveFolderData.id
   }]
  }
- fs.writeFile('config.json', JSON.stringify(dataToWrite, null, 1), function(err) {
-  if (err) return console.log(err);
-  console.log(chalk.green('config.json file modified successfully'));
- });
+ await fs.writeFile('config.json', JSON.stringify(dataToWrite, null, 1))
+  .then(() => {
+    console.log(chalk.green('\nconfig.json file created successfully'));
+    console.log(chalk.black.bgWhite(`Operation completed`));
+   })
+  .catch(err => {
+    console.log(err);
+    process.exit()
+  })
 }

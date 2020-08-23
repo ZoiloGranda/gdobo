@@ -83,7 +83,7 @@ function sendFilesInArray(params) {
 		localFolder,
 		gDriveFolder
 	} = params
-	Promise.map(filenames, function(currentFile) {
+	return Promise.map(filenames, function(currentFile) {
 		return upload({
 			filename: currentFile,
 			auth: auth,
@@ -102,6 +102,7 @@ function sendFilesInArray(params) {
 	})
 	.then(function() {
 		console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
+		resolve()
 	}).catch(function(err) {
 		console.log('ERROR');
 		console.log(err);

@@ -26,6 +26,6 @@ module.exports = async function compareHandler(auth) {
   console.log(e);
   process.exit();
  } finally {
-  process.exit();
+  console.log(chalk.black.bgWhite(`Operation completed`));
  }
 }

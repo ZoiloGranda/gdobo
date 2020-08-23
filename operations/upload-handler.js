@@ -39,5 +39,7 @@ module.exports = async function uploadHandler(auth) {
   filenames: selectedFiles,
   localFolder: localFolder,
   gDriveFolder: gDriveFolder
+ }).then(()=>{
+  console.log(chalk.black.bgWhite(`Operation completed`));
  })
 }

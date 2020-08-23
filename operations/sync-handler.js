@@ -76,19 +76,18 @@ module.exports = async function syncHandler(auth) {
     })
     .then(function() {
      console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
-     process.exit();
+     //console.log(chalk.black.bgWhite(`Operation completed`));
     }).catch(function(err) {
      console.log('ERROR');
      console.log(err);
     });
   } else {
    console.log(chalk.cyan(`Nothing to do here`));
-   process.exit()
   }
  } catch (e) {
   console.log(e);
   process.exit()
  } finally {
-
+  console.log(chalk.black.bgWhite(`Operation completed`));
  }
 }
