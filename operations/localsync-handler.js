@@ -43,7 +43,7 @@ module.exports = async function localsyncHandler(auth) {
   process.exit()
  }
  // localFolder, filename
- Promise.map(filesToDelete, function(currentFile) {
+ await Promise.map(filesToDelete, function(currentFile) {
    return deleteLocalFile({
      filename: currentFile,
      localFolder: localFolder,
