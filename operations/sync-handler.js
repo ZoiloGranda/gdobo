@@ -57,7 +57,7 @@ module.exports = async function syncHandler(auth) {
   filesWithData.forEach(element => console.log(chalk.yellow(element.name)));
   let confirmation = await askForConfirmation()
   if (confirmation.answer) {
-   Promise.map(filesWithData, function(currentFile) {
+   await Promise.map(filesWithData, function(currentFile) {
      return deleteFileGDrive({
        filename: currentFile.name,
        fileId: currentFile.id,
@@ -76,7 +76,6 @@ module.exports = async function syncHandler(auth) {
     })
     .then(function() {
      console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
-     //console.log(chalk.black.bgWhite(`Operation completed`));
     }).catch(function(err) {
      console.log('ERROR');
      console.log(err);
