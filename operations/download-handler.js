@@ -50,7 +50,7 @@ module.exports = async function downloadHandler(auth) {
  console.log({
   filesToDownload
  });
- Promise.map(filesToDownload, function(currentFile) {
+ await Promise.map(filesToDownload, function(currentFile) {
    return download({
      filename: currentFile.name,
      fileId: currentFile.id,
