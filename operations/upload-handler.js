@@ -34,7 +34,7 @@ module.exports = async function uploadHandler(auth) {
   choices: filesToUpload,
   operation: 'upload'
  })
- sendFilesInArray({
+ await sendFilesInArray({
   auth: auth,
   filenames: selectedFiles,
   localFolder: localFolder,

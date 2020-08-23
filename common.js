@@ -102,7 +102,6 @@ function sendFilesInArray(params) {
 	})
 	.then(function() {
 		console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
-		resolve()
 	}).catch(function(err) {
 		console.log('ERROR');
 		console.log(err);
