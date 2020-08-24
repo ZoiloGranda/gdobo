@@ -5,18 +5,21 @@ To avoid the unintentional lost of files, copy the directory you want to upload/
 Enable the Drive API
 https://developers.google.com/drive/api/v3/quickstart/nodejs
 
+### 2
+Select **Desktop App**
+
 In resulting dialog click DOWNLOAD CLIENT CONFIGURATION and save the file `credentials.json` to your application directory.
 
-### 2
+### 3
 `npm install`
 
-### 3
+### 4
 Create `.env` based on `.env-example`
 
-### 4
+### 5
 `npm start` To see the list of available options
 
-### 5
+### 6
 The first time you run the sample, it will prompt you to authorize access:
 
 Browse to the provided URL in your web browser.
@@ -26,8 +29,8 @@ If you are not already logged into your Google account, you will be prompted to 
 Click the Accept button.
 Copy the code you're given, paste it into the command-line prompt, and press Enter.
 
-### 6
+### 7
 Verify that the file `token.json` was created on the root directory on the application and it has valid data
 
-### 7
+### 8
 After running `npm install` use the **FOLDERS** option to get a list of folders on Google Drive, and add the id and name of the ones you need on `.env`
