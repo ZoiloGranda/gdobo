@@ -169,20 +169,15 @@ function renameTempFile(params) {
 }
 
 function normalizePath({localFolderPath}){
-	console.log(4,localFolderPath);
 	//remove first and last '
 	if(localFolderPath.charAt(0) === '\'' &&
 	 localFolderPath.charAt(localFolderPath.length - 1) === '\''){
-		console.log('the ifening');
 		localFolderPath = localFolderPath.slice(1,-1)
-		console.log(5,localFolderPath);
 	}
 	//remove first and last "
 	if(localFolderPath.charAt(0) === '\"' &&
 		localFolderPath.charAt(localFolderPath.length - 1) === '\"'){
-		console.log('the ifening');
 		localFolderPath = localFolderPath.slice(1,-1)
-		console.log(6,localFolderPath);
 	}
 	return path.normalize(localFolderPath)
 	

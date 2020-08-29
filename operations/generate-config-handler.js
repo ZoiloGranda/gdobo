@@ -14,20 +14,9 @@ const {
 } = require('../common.js')
 
 module.exports = async function generateConfigHandler({ auth }) {
- console.log('arepa');
- let melon = 'melon'
- console.log(melon);
- let patilla = {
-  name: 'patilla'
- }
- console.log(patilla);
- console.log(patilla.name);
  let localFolderPath = await askLocalFolderPath()
- console.log(1,localFolderPath);
  let localPathNormalized = normalizePath({localFolderPath});
- console.log(2,localPathNormalized);
  let localFolderName = path.basename(localPathNormalized);
- console.log(3,localFolderName);
  let allGDriveFolders = await getGDriveFolders({
   auth: auth
  });
