@@ -9,12 +9,15 @@ const {
  askLocalFolderPath,
  selectGDriveFolder
 } = require('../interface')
+const {
+ normalizePath
+} = require('../common.js')
 
 module.exports = async function modifyConfigHandler({ auth }) {
  const config = require('../config.json');
  let localFolderPath = await askLocalFolderPath()
  console.log({localFolderPath});
- let localPathNormalized = path.normalize(localFolderPath)
+ let localPathNormalized = normalizePath({localFolderPath});
  console.log({localPathNormalized});
  let localFolderName = path.basename(localPathNormalized);
  console.log({ localFolderName });
@@ -29,7 +32,7 @@ module.exports = async function modifyConfigHandler({ auth }) {
    ...config.LOCAL_FOLDERS,
    {
     name: localFolderName,
-    value: localFolderPath + '/'
+    value: localPathNormalized + '/'
    }
   ],
   GDRIVE_FOLDERS: [
