@@ -1,13 +1,14 @@
-const {
-	listFiles,
-	upload
-} = require('./google-drive-api');
+const path = require('path');
 const _ = require('lodash');
 const fs = require('fs');
 const Promise = require('bluebird');
 const chalk = require('chalk');
 const readline = require('readline');
 const { askForLocalFolder, askForGDriveFolder } = require('./interface')
+const {
+	listFiles,
+	upload
+} = require('./google-drive-api');
 
 
 var getAllGDriveFiles = function(params) {
@@ -167,6 +168,26 @@ function renameTempFile(params) {
 	});
 }
 
+function normalizePath({localFolderPath}){
+	console.log(4,localFolderPath);
+	//remove first and last '
+	if(localFolderPath.charAt(0) === '\'' &&
+	 localFolderPath.charAt(localFolderPath.length - 1) === '\''){
+		console.log('the ifening');
+		localFolderPath = localFolderPath.slice(1,-1)
+		console.log(5,localFolderPath);
+	}
+	//remove first and last "
+	if(localFolderPath.charAt(0) === '\"' &&
+		localFolderPath.charAt(localFolderPath.length - 1) === '\"'){
+		console.log('the ifening');
+		localFolderPath = localFolderPath.slice(1,-1)
+		console.log(6,localFolderPath);
+	}
+	return path.normalize(localFolderPath)
+	
+}
+
 module.exports = {
 	getAllGDriveFiles,
 	getAllLocalFiles,
@@ -174,5 +195,6 @@ module.exports = {
 	sendFilesInArray,
 	deleteLocalFile,
 	getFolders,
-	renameTempFile
+	renameTempFile,
+	normalizePath
 }
