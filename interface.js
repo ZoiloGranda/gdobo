@@ -82,7 +82,7 @@ function askLocalFolderPath() {
   message: "Drag your local folder here"
  }])
  .then(answer => {
-  return answer.localFolderPath.slice(1,-1)
+  return answer.localFolderPath
  });
 }
 

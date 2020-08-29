@@ -13,7 +13,10 @@ const {
 module.exports = async function modifyConfigHandler({ auth }) {
  const config = require('../config.json');
  let localFolderPath = await askLocalFolderPath()
- let localFolderName = path.basename(localFolderPath);
+ console.log({localFolderPath});
+ let localPathNormalized = path.normalize(localFolderPath)
+ console.log({localPathNormalized});
+ let localFolderName = path.basename(localPathNormalized);
  console.log({ localFolderName });
  let allGDriveFolders = await getGDriveFolders({
   auth: auth
