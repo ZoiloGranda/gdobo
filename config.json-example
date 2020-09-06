@@ -1,0 +1,14 @@
+{
+ "LOCAL_FOLDERS": [
+  {
+   "name": "Local Folder name",
+   "value": "/some/folder/path/"
+  }
+ ],
+ "GDRIVE_FOLDERS": [
+  {
+   "name": "GDrive Folder Name",
+   "value": "google folder id"
+  }
+ ]
+}
