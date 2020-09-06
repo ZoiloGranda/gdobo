@@ -16,6 +16,10 @@ const {
 module.exports = async function generateConfigHandler({ auth }) {
  let localFolderPath = await askLocalFolderPath()
  let localPathNormalized = normalizePath({localFolderPath});
+ if (!fs.lstatSync(localPathNormalized).isDirectory()) {
+  console.log(chalk.red(`\nSelected path is not a folder: ${localPathNormalized}`));
+  process.exit()
+ }
  let localFolderName = path.basename(localPathNormalized);
  let allGDriveFolders = await getGDriveFolders({
   auth: auth
