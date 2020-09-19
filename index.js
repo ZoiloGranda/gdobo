@@ -76,6 +76,9 @@ async function checkArgs(auth, selectedOperation) {
     case 'modifyConfig':
     await modifyConfigHandler({ auth })
     break;
+    case 'exit':
+    process.exit()
+    break;
     default:
     console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
    }

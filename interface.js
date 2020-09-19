@@ -131,6 +131,10 @@ const operations = [{
 {
  name: 'MODIFY CONFIG - Modify an existing config.json file',
  value: 'modifyConfig'
+},
+{
+ name: 'EXIT - Close the app',
+ value: 'exit'
 }
 ]
 
