@@ -49,6 +49,7 @@ function checkConfig() {
 
 async function checkArgs(auth, selectedOperation) {
  console.log(chalk.cyan(`Operation: ${chalk.inverse(selectedOperation)}`));
+	delete require.cache[path.resolve('./config.json')];
  try {
   if (selectedOperation) {
    switch (selectedOperation) {
