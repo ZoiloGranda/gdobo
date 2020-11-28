@@ -11,7 +11,7 @@ const {
 } = require('../interface')
 const {
  normalizePath
-} = require('../common.js')
+} = require('../common.js');
 
 module.exports = async function modifyConfigHandler({ auth }) {
  const config = require('../config.json');
@@ -25,7 +25,7 @@ module.exports = async function modifyConfigHandler({ auth }) {
  let allGDriveFolders = await getGDriveFolders({
   auth: auth
  });
- allGDriveFolders.filter(current => current.value = current.id)
+ allGDriveFolders.map(current => current.value = current.id)
  let googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
  let googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
  let dataToWrite = {
@@ -45,9 +45,7 @@ module.exports = async function modifyConfigHandler({ auth }) {
   ]
  }
  console.log(dataToWrite);
- fs.writeFile('config.json', JSON.stringify(dataToWrite, null, 1), function(err) {
-  if (err) return console.log(err);
+fs.writeFileSync('config.json', JSON.stringify(dataToWrite, null, 1))
   console.log(chalk.green('\nconfig.json file modified successfully'));
   console.log(chalk.black.bgWhite(`Operation completed`));
- });
 }
