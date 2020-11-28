@@ -79,9 +79,8 @@ async function checkArgs(auth, selectedOperation) {
     break;
     case 'exit':
     process.exit()
-    break;
     default:
-    console.log(chalk.red(`Operation ${selectedOperation} not recognize`));
+    console.log(chalk.red(`Operation ${selectedOperation} not recognized`));
    }
   } else {
    console.log(chalk.red(`No operation provided`));
