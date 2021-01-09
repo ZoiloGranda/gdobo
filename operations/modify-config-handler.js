@@ -6,46 +6,23 @@ const {
  getGDriveFolders
 } = require('../google-drive-api');
 const {
- askLocalFolderPath,
- selectGDriveFolder
+ askConfigOperation
 } = require('../interface')
 const {
  normalizePath
 } = require('../common.js');
 
+const addFolder = require('./modify-config-ops/add-folder')
+
 module.exports = async function modifyConfigHandler({ auth }) {
- const config = require('../config.json');
- let localFolderPath = await askLocalFolderPath()
- let localPathNormalized = normalizePath({localFolderPath});
- if (!fs.lstatSync(localPathNormalized).isDirectory()) {
-  console.log(chalk.red(`\nSelected path is not a folder: ${localPathNormalized}`));
-  process.exit()
+  const operation = await askConfigOperation()
+  switch (operation) {
+    case 'ADD':
+      await addFolder({auth})
+      break;
+  
+    default:
+      break;
+  }
+  console.log(operation)
  }
- let localFolderName = path.basename(localPathNormalized);
- let allGDriveFolders = await getGDriveFolders({
-  auth: auth
- });
- allGDriveFolders.map(current => current.value = current.id)
- let googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
- let googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
- let dataToWrite = {
-  LOCAL_FOLDERS: [
-   ...config.LOCAL_FOLDERS,
-   {
-    name: localFolderName,
-    value: localPathNormalized + '/'
-   }
-  ],
-  GDRIVE_FOLDERS: [
-   ...config.GDRIVE_FOLDERS,
-   {
-    name: googleDriveFolderData.name,
-    value: googleDriveFolderData.id
-   }
-  ]
- }
- console.log(dataToWrite);
-fs.writeFileSync('config.json', JSON.stringify(dataToWrite, null, 1))
-  console.log(chalk.green('\nconfig.json file modified successfully'));
-  console.log(chalk.black.bgWhite(`Operation completed`));
-}

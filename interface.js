@@ -100,6 +100,27 @@ function selectGDriveFolder(options) {
  });
 }
 
+function askConfigOperation() {
+  return inquirer
+  .prompt([{
+   type: 'list',
+   name: 'operation',
+   message: 'Add or remove a folder from config.json?',
+   pageSize: 10,
+   choices:  [{
+    name: 'ADD a folder to config.json',
+    value: 'ADD'
+   },
+   {
+    name: 'REMOVE a folder to config.json',
+    value: 'REMOVE'
+   }]
+  }])
+  .then(answer => {
+   return answer.operation
+  });
+ }
+
 const operations = [{
   name: 'CONFIG - Generate config.json file. If this is the first time running the app, select this',
   value: 'generateConfig'
@@ -145,5 +166,6 @@ module.exports = {
  askForGDriveFolder,
  selectFiles,
  askLocalFolderPath,
- selectGDriveFolder
+ selectGDriveFolder,
+ askConfigOperation
 }
