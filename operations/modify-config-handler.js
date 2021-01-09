@@ -13,6 +13,8 @@ const {
 } = require('../common.js');
 
 const addFolder = require('./modify-config-ops/add-folder')
+const removeFolder = require('./modify-config-ops/remove-folder')
+
 
 module.exports = async function modifyConfigHandler({ auth }) {
   const operation = await askConfigOperation()
@@ -20,7 +22,9 @@ module.exports = async function modifyConfigHandler({ auth }) {
     case 'ADD':
       await addFolder({auth})
       break;
-  
+    case 'REMOVE':
+      await removeFolder({auth})
+      break;
     default:
       break;
   }

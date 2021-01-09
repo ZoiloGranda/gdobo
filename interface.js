@@ -112,7 +112,7 @@ function askConfigOperation() {
     value: 'ADD'
    },
    {
-    name: 'REMOVE a folder to config.json',
+    name: 'REMOVE a folder from config.json',
     value: 'REMOVE'
    }]
   }])
