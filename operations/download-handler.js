@@ -34,7 +34,7 @@ module.exports = async function downloadHandler(auth) {
  })
  if (differentFiles.areInGDrive.length === 0) {
   console.log(chalk.yellow(`Nothing to download, folders are updated`));
-  process.exit()
+  return
  }
  let selectedFiles = await selectFiles({
   choices: differentFiles.areInGDrive,
