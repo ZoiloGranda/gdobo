@@ -87,7 +87,6 @@ async function checkArgs(auth, selectedOperation) {
   }
  } catch (e) {
   console.log(e);
-  process.exit()
  } finally {
   startProcess(auth)
  }
