@@ -61,12 +61,17 @@ function selectFiles({ choices, operation }) {
   type: 'checkbox',
   message: `Select files to ${operation}`,
   name: 'files',
-  choices: choices,
+  choices: [...choices, new inquirer.Separator(), ...backOption],
   validate: function(answer) {
    if (answer.length < 1) {
     return 'You must choose at least one file.';
    }
    return true;
+  },
+  filter: function(answer) {
+   if(answer.includes('back')) {
+    return backOption
+   }
   }
  }])
  .then(answers => {
@@ -158,6 +163,11 @@ const operations = [{
  value: 'exit'
 }
 ]
+
+const backOption =[{
+ name: 'Back',
+ value: 'back'
+}]
 
 module.exports = {
  askOperation,

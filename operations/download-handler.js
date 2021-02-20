@@ -40,6 +40,10 @@ module.exports = async function downloadHandler(auth) {
   choices: differentFiles.areInGDrive,
   operation: 'download'
  })
+ if(selectedFiles[0].value === 'back'){
+  console.log(chalk.yellow(`Returning`));
+  return
+ }
  let filesToDownload = _.filter(allGDriveFiles, function(currentFile) {
   for (let element of selectedFiles) {
    if (currentFile.name === element) {

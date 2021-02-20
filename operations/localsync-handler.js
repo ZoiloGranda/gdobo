@@ -34,6 +34,10 @@ module.exports = async function localsyncHandler(auth) {
   choices: differentFiles.areInLocal,
   operation: 'DELETE'
  })
+ if(filesToDelete[0].value === 'back'){
+  console.log(chalk.yellow(`Returning`));
+  return
+ }
  console.log(chalk.yellow(`Files to delete from local folder:`));
  filesToDelete.forEach(element => console.log(chalk.yellow(element)));
  let confirmation = await askForConfirmation()

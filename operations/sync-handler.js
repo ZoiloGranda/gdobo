@@ -49,6 +49,10 @@ module.exports = async function syncHandler(auth) {
    choices: filesToDelete,
    operation: 'DELETE'
   })
+  if(confirmedFilesToDelete[0].value === 'back'){
+   console.log(chalk.yellow(`Returning`));
+   return
+  }
   let filesWithData = [];
   confirmedFilesToDelete.forEach((item) => {
    let found = filesToDelete.find(element => element.id === item);

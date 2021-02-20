@@ -34,6 +34,10 @@ module.exports = async function uploadHandler(auth) {
   choices: filesToUpload,
   operation: 'upload'
  })
+ if(selectedFiles[0].value === 'back'){
+  console.log(chalk.yellow(`Returning`));
+  return
+ }
  await sendFilesInArray({
   auth: auth,
   filenames: selectedFiles,
