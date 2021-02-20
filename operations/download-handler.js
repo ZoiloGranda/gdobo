@@ -20,7 +20,10 @@ const {
 //downloads all the files from a google drive folder
 //compares files by name to avoid downloading the same file twice
 module.exports = async function downloadHandler(auth) {
- let { localFolder, gDriveFolder } = await getFolders();
+ let {
+  localFolder,
+  gDriveFolder
+ } = await getFolders();
  let allLocalFiles = await getAllLocalFiles(localFolder);
  let allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
@@ -40,11 +43,11 @@ module.exports = async function downloadHandler(auth) {
   choices: differentFiles.areInGDrive,
   operation: 'download'
  })
- if(selectedFiles[0].value === 'back'){
+ if (selectedFiles[0].value === 'back') {
   console.log(chalk.yellow(`Returning`));
   return
  }
- let filesToDownload = _.filter(allGDriveFiles, function(currentFile) {
+ let filesToDownload = _.filter(allGDriveFiles, function (currentFile) {
   for (let element of selectedFiles) {
    if (currentFile.name === element) {
     return true
@@ -54,7 +57,7 @@ module.exports = async function downloadHandler(auth) {
  console.log({
   filesToDownload
  });
- await Promise.map(filesToDownload, function(currentFile) {
+ await Promise.map(filesToDownload, function (currentFile) {
    return download({
      filename: currentFile.name,
      fileId: currentFile.id,
@@ -63,21 +66,23 @@ module.exports = async function downloadHandler(auth) {
      localFolder: localFolder,
      gDriveFolder: gDriveFolder
     })
-    .then(function() {
-     renameTempFile({ file: `${localFolder}${currentFile.name}` })
+    .then(function () {
+     renameTempFile({
+      file: `${localFolder}${currentFile.name}`
+     })
      console.log(chalk.green(`\nFile saved: ${localFolder}${currentFile.name}`));
     })
-    .catch(function(err) {
+    .catch(function (err) {
      console.log(chalk.red('ERROR'));
      console.log(err);
     });
   }, {
    concurrency: 1
   })
-  .then(function() {
+  .then(function () {
    console.log(chalk.bgGreen.bold('SUCCESS ALL FILES'));
    console.log(chalk.black.bgWhite(`Operation completed`));
-  }).catch(function(err) {
+  }).catch(function (err) {
    console.log(err);
    process.exit()
   });

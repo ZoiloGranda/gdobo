@@ -12,7 +12,10 @@ const {
 } = require('../interface')
 
 module.exports = async function uploadHandler(auth) {
- let { localFolder, gDriveFolder } = await getFolders();
+ let {
+  localFolder,
+  gDriveFolder
+ } = await getFolders();
  let allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
   gDriveFolder: gDriveFolder
@@ -34,7 +37,7 @@ module.exports = async function uploadHandler(auth) {
   choices: filesToUpload,
   operation: 'upload'
  })
- if(selectedFiles[0].value === 'back'){
+ if (selectedFiles[0].value === 'back') {
   console.log(chalk.yellow(`Returning`));
   return
  }
@@ -43,7 +46,7 @@ module.exports = async function uploadHandler(auth) {
   filenames: selectedFiles,
   localFolder: localFolder,
   gDriveFolder: gDriveFolder
- }).then(()=>{
+ }).then(() => {
   console.log(chalk.black.bgWhite(`Operation completed`));
  })
 }

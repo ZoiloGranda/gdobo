@@ -16,7 +16,10 @@ const {
 
 //removes local files that were removed from google drive
 module.exports = async function localsyncHandler(auth) {
- let { localFolder, gDriveFolder } = await getFolders();
+ let {
+  localFolder,
+  gDriveFolder
+ } = await getFolders();
  let allLocalFiles = await getAllLocalFiles(localFolder);
  let allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
@@ -34,7 +37,7 @@ module.exports = async function localsyncHandler(auth) {
   choices: differentFiles.areInLocal,
   operation: 'DELETE'
  })
- if(filesToDelete[0].value === 'back'){
+ if (filesToDelete[0].value === 'back') {
   console.log(chalk.yellow(`Returning`));
   return
  }
@@ -47,25 +50,25 @@ module.exports = async function localsyncHandler(auth) {
   process.exit()
  }
  // localFolder, filename
- await Promise.map(filesToDelete, function(currentFile) {
+ await Promise.map(filesToDelete, function (currentFile) {
    return deleteLocalFile({
      filename: currentFile,
      localFolder: localFolder,
     })
-    .then(function() {
+    .then(function () {
      console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
     })
-    .catch(function(err) {
+    .catch(function (err) {
      console.log(chalk.red('ERROR'));
      console.log(err);
     });
   }, {
    concurrency: 1
   })
-  .then(function() {
+  .then(function () {
    console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
    console.log(chalk.black.bgWhite(`Operation completed`));
-  }).catch(function(err) {
+  }).catch(function (err) {
    console.log('ERROR');
    console.log(err);
    process.exit()

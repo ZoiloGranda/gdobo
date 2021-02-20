@@ -17,7 +17,10 @@ const {
 
 //Removes files from Google Drive
 module.exports = async function syncHandler(auth) {
- let { localFolder, gDriveFolder } = await getFolders();
+ let {
+  localFolder,
+  gDriveFolder
+ } = await getFolders();
  try {
   let allLocalFiles = await getAllLocalFiles(localFolder);
   let allGDriveFiles = await getAllGDriveFiles({
@@ -34,7 +37,7 @@ module.exports = async function syncHandler(auth) {
    console.log(chalk.yellow(`There are no files to Sync`));
    process.exit();
   }
-  let filesToDelete = _.filter(allGDriveFiles, function(currentFile) {
+  let filesToDelete = _.filter(allGDriveFiles, function (currentFile) {
    for (let element of differentFiles.areInGDrive) {
     if (currentFile.name === element) {
      currentFile.value = currentFile.id
@@ -49,7 +52,7 @@ module.exports = async function syncHandler(auth) {
    choices: filesToDelete,
    operation: 'DELETE'
   })
-  if(confirmedFilesToDelete[0].value === 'back'){
+  if (confirmedFilesToDelete[0].value === 'back') {
    console.log(chalk.yellow(`Returning`));
    return
   }
@@ -61,26 +64,26 @@ module.exports = async function syncHandler(auth) {
   filesWithData.forEach(element => console.log(chalk.yellow(element.name)));
   let confirmation = await askForConfirmation()
   if (confirmation.answer) {
-   await Promise.map(filesWithData, function(currentFile) {
+   await Promise.map(filesWithData, function (currentFile) {
      return deleteFileGDrive({
        filename: currentFile.name,
        fileId: currentFile.id,
        auth: auth,
        gDriveFolder: gDriveFolder
       })
-      .then(function(deletedFile) {
+      .then(function (deletedFile) {
        console.log(chalk.green(`\nFile deleted successfully: ${deletedFile}`));
       })
-      .catch(function(err) {
+      .catch(function (err) {
        console.log(chalk.red('ERROR'));
        console.log(err);
       });
     }, {
      concurrency: 1
     })
-    .then(function() {
+    .then(function () {
      console.log(chalk.bgGreen.bold('Successfully deleted all files from Google Drive'));
-    }).catch(function(err) {
+    }).catch(function (err) {
      console.log('ERROR');
      console.log(err);
     });
