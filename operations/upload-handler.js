@@ -26,9 +26,6 @@ module.exports = async function uploadHandler(auth) {
   allGDriveFiles: allGDriveFiles
  })
  let filesToUpload = differentFiles.areInLocal;
- console.log({
-  filesToUpload
- });
  if (filesToUpload.length === 0) {
   console.log(chalk.yellow(`Nothing to Upload`));
   return

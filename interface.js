@@ -75,6 +75,7 @@ function selectFiles({
     if (answer.includes('back')) {
      return backOption
     }
+    return answer
    }
   }])
   .then(answers => {
