@@ -1,6 +1,5 @@
 const Promise = require('bluebird');
 const chalk = require('chalk');
-const _ = require('lodash');
 const {
  getAllGDriveFiles,
  getAllLocalFiles,
@@ -10,64 +9,63 @@ const {
 } = require('../common');
 const {
  askForConfirmation,
- askForGDriveFolder,
  selectFiles
 } = require('../interface')
 
-//removes local files that were removed from google drive
+// removes local files that were removed from google drive
 module.exports = async function localsyncHandler(auth) {
- let {
+ const {
   localFolder,
   gDriveFolder
  } = await getFolders();
- let allLocalFiles = await getAllLocalFiles(localFolder);
- let allGDriveFiles = await getAllGDriveFiles({
+ const allLocalFiles = await getAllLocalFiles(localFolder);
+ const allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
   gDriveFolder: gDriveFolder
  })
- let differentFiles = await compareFiles({
+ const differentFiles = compareFiles({
   allLocalFiles: allLocalFiles,
   allGDriveFiles: allGDriveFiles
  })
  if (differentFiles.areInLocal.length === 0) {
-  console.log(chalk.yellow(`Nothing to delete, local folder is updated`));
+  console.log(chalk.yellow('Nothing to delete, local folder is updated'));
   process.exit()
  }
- let filesToDelete = await selectFiles({
+ const filesToDelete = await selectFiles({
   choices: differentFiles.areInLocal,
   operation: 'DELETE'
  })
  if (filesToDelete[0].value === 'back') {
-  console.log(chalk.yellow(`Returning`));
+  console.log(chalk.yellow('Returning'));
   return
  }
- console.log(chalk.yellow(`Files to delete from local folder:`));
+ console.log(chalk.yellow('Files to delete from local folder:'));
  filesToDelete.forEach(element => console.log(chalk.yellow(element)));
- let confirmation = await askForConfirmation()
+ const confirmation = await askForConfirmation()
  console.log(confirmation);
  if (!confirmation.answer) {
-  console.log(chalk.yellow(`Exiting...`));
+  console.log(chalk.yellow('Exiting...'));
   process.exit()
  }
  // localFolder, filename
  await Promise.map(filesToDelete, function (currentFile) {
-   return deleteLocalFile({
-     filename: currentFile,
-     localFolder: localFolder,
-    })
-    .then(function () {
-     console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
-    })
-    .catch(function (err) {
-     console.log(chalk.red('ERROR'));
-     console.log(err);
-    });
-  }, {
-   concurrency: 1
+  return deleteLocalFile({
+   filename: currentFile,
+   localFolder: localFolder
   })
+   .then(function () {
+    console.log(chalk.green(`\nDeleted File: ${localFolder}${currentFile}`));
+   })
+   .catch(function (err) {
+    console.log(chalk.red('ERROR'));
+    console.log(err);
+   });
+ }, {
+  concurrency: 1
+ })
   .then(function () {
    console.log(chalk.bgGreen.bold('SUCCESS DELETING ALL FILES'));
-   console.log(chalk.black.bgWhite(`Operation completed`));
+   console.log(chalk.black.bgWhite('Operation completed'));
   }).catch(function (err) {
    console.log('ERROR');
    console.log(err);

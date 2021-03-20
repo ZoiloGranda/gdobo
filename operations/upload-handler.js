@@ -7,35 +7,34 @@ const {
  getFolders
 } = require('../common');
 const {
- selectFiles,
- selectGDriveFolder
+ selectFiles
 } = require('../interface')
 
 module.exports = async function uploadHandler(auth) {
- let {
+ const {
   localFolder,
   gDriveFolder
  } = await getFolders();
- let allGDriveFiles = await getAllGDriveFiles({
+ const allGDriveFiles = await getAllGDriveFiles({
   auth: auth,
   gDriveFolder: gDriveFolder
  })
- let allLocalFiles = await getAllLocalFiles(localFolder);
- let differentFiles = await compareFiles({
+ const allLocalFiles = await getAllLocalFiles(localFolder);
+ const differentFiles = compareFiles({
   allLocalFiles: allLocalFiles,
   allGDriveFiles: allGDriveFiles
  })
- let filesToUpload = differentFiles.areInLocal;
+ const filesToUpload = differentFiles.areInLocal;
  if (filesToUpload.length === 0) {
-  console.log(chalk.yellow(`Nothing to Upload`));
+  console.log(chalk.yellow('Nothing to Upload'));
   return
  }
- let selectedFiles = await selectFiles({
+ const selectedFiles = await selectFiles({
   choices: filesToUpload,
   operation: 'upload'
  })
  if (selectedFiles[0].value === 'back') {
-  console.log(chalk.yellow(`Returning`));
+  console.log(chalk.yellow('Returning'));
   return
  }
  await sendFilesInArray({
@@ -44,6 +43,6 @@ module.exports = async function uploadHandler(auth) {
   localFolder: localFolder,
   gDriveFolder: gDriveFolder
  }).then(() => {
-  console.log(chalk.black.bgWhite(`Operation completed`));
+  console.log(chalk.black.bgWhite('Operation completed'));
  })
 }
