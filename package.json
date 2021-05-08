@@ -12,7 +12,7 @@
   "express": "^4.16.4",
   "googleapis": "^39.0.0",
   "inquirer": "^7.1.0",
-  "lodash": "^4.17.19",
+  "lodash": "^4.17.21",
   "nconf": "^0.10.0",
   "open": "^7.0.3",
   "server-destroy": "^1.0.1",
