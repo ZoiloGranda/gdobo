@@ -5,6 +5,5 @@ module.exports = {
  localsyncHandler: require('./localsync-handler'),
  foldersHandler: require('./folders-handler'),
  downloadHandler: require('./download-handler'),
- generateConfigHandler: require('./generate-config-handler'),
  modifyConfigHandler: require('./modify-config-handler')
 };

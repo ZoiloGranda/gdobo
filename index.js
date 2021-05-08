@@ -9,7 +9,6 @@ const {
  localsyncHandler,
  foldersHandler,
  downloadHandler,
- generateConfigHandler,
  modifyConfigHandler
 } = require('./operations')
 const {
@@ -20,7 +19,7 @@ const configPath = path.join(__dirname, '/config.json');
 async function startProcess(auth) {
  const selectedOperation = await askOperation();
  try {
-  if (selectedOperation.option !== 'generateConfig') {
+  if (selectedOperation.option !== 'modifyConfig') {
    await checkConfig();
   }
  } catch (e) {
@@ -37,8 +36,8 @@ function checkConfig() {
    console.log(chalk.cyan('config.json file found'));
    resolve();
   } else {
-   console.log(chalk.red('Error: config.json file NOT found'));
-   reject(new Error('config.json file NOT found'))
+   console.log(chalk.red('Warning: config.json file NOT found. Use CREATE operation first'));
+   resolve();
   }
  })
 }
@@ -66,9 +65,6 @@ async function checkArgs(auth, selectedOperation) {
      break;
     case 'download':
      await downloadHandler(auth)
-     break;
-    case 'generateConfig':
-     await generateConfigHandler({ auth })
      break;
     case 'modifyConfig':
      await modifyConfigHandler({ auth })

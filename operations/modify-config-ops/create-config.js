@@ -3,16 +3,16 @@ const fs = require('fs').promises;
 const chalk = require('chalk');
 const {
  getGDriveFolders
-} = require('../google-drive-api');
+} = require('../../google-drive-api');
 const {
  askLocalFolderPath,
  selectGDriveFolder
-} = require('../interface')
+} = require('../../interface')
 const {
  normalizePath
-} = require('../common.js')
+} = require('../../common.js')
 
-module.exports = async function generateConfigHandler({ auth }) {
+module.exports = async function createConfig({ auth }) {
  const localFolderPath = await askLocalFolderPath()
  const localPathNormalized = normalizePath({ localFolderPath });
  const pathStats = await fs.lstat(localPathNormalized)
@@ -25,7 +25,7 @@ module.exports = async function generateConfigHandler({ auth }) {
  const allGDriveFolders = await getGDriveFolders({
   auth: auth
  });
- allGDriveFolders.filter(current => current.value === current.id)
+ allGDriveFolders.forEach(function (current) { current.value = current.id })
  const googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
  const googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
  const dataToWrite = {
