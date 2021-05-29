@@ -29,6 +29,10 @@ module.exports = async function addFolder({ auth }) {
    current.value = current.id
   })
   const googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
+  if (googleDriveFolder === 'back') {
+   console.log(chalk.yellow('Returning'));
+   return
+  }
   const googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
   const dataToWrite = {
    LOCAL_FOLDERS: [

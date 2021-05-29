@@ -33,7 +33,7 @@ function askForLocalFolder(options) {
    type: 'list',
    name: 'option',
    message: 'Select LOCAL folder to operate',
-   choices: options,
+   choices: [...options, new inquirer.Separator(), ...backOption, new inquirer.Separator()],
    pageSize: 10
   }])
   .then(answer => {
@@ -101,7 +101,7 @@ function selectGDriveFolder(options) {
    type: 'list',
    name: 'option',
    message: 'Select GOOGLE DRIVE folder to add on config file',
-   choices: options,
+   choices: [...options, new inquirer.Separator(), ...backOption, new inquirer.Separator()],
    pageSize: 10
   }])
   .then(answer => {

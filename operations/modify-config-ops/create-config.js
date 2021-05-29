@@ -27,6 +27,10 @@ module.exports = async function createConfig({ auth }) {
  });
  allGDriveFolders.forEach(function (current) { current.value = current.id })
  const googleDriveFolder = await selectGDriveFolder(allGDriveFolders)
+ if (googleDriveFolder === 'back') {
+  console.log(chalk.yellow('Returning'));
+  return
+ }
  const googleDriveFolderData = allGDriveFolders.find(element => element.id === googleDriveFolder)
  const dataToWrite = {
   LOCAL_FOLDERS: [{

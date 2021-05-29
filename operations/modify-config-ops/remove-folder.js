@@ -8,6 +8,10 @@ const {
 module.exports = async function removeFolder() {
  const config = require('../../config.json');
  const localFolderToDelete = await askForLocalFolder(config.LOCAL_FOLDERS)
+ if (localFolderToDelete === 'back') {
+  console.log(chalk.yellow('Returning'));
+  return
+ }
  config.LOCAL_FOLDERS = config.LOCAL_FOLDERS.filter(elem => elem.value !== localFolderToDelete)
  const gDriveFolderToDelete = await askForGDriveFolder(config.GDRIVE_FOLDERS)
  config.GDRIVE_FOLDERS = config.GDRIVE_FOLDERS.filter(elem => elem.value !== gDriveFolderToDelete)
